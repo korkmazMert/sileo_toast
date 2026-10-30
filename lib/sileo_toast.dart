@@ -8,3 +8,4 @@ export 'src/sileo_position.dart';
 export 'src/sileo_spring.dart';
 export 'src/sileo_state.dart';
 export 'src/sileo_theme.dart';
+export 'src/sileo_toaster.dart';

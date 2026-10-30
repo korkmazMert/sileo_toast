@@ -1,0 +1,14 @@
+name: sileo_toast_example
+description: Minimal demo of sileo_toast.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.13.0
+  flutter: '>=3.47.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sileo_toast:
+    path: ../
