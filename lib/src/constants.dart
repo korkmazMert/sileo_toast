@@ -212,6 +212,13 @@ abstract final class SileoConstants {
   /// Button label weight.
   static const FontWeight buttonWeight = FontWeight.w500;
 
+  /// Button background color transition.
+  static const Duration buttonFade = Duration(milliseconds: 150);
+
+  /// Hit box padding above and below the button pill (hit box is
+  /// [minTapTarget] tall); the button margins are cut by this much.
+  static const double buttonHitMargin = (minTapTarget - buttonHeight) / 2;
+
   // Alphas.
   /// Badge background alpha.
   static const double badgeAlpha = 0.20;
@@ -259,4 +266,13 @@ abstract final class SileoConstants {
 
   /// Description base color on the `dark` fill.
   static const Color darkDescription = Color(0xFF000000);
+
+  // Text.
+  /// Toast text style when the toaster supplies none.
+  static const TextStyle neutralText = TextStyle(
+    inherit: false,
+    color: Color(0xFF000000),
+    fontSize: descriptionFontSize,
+    decoration: TextDecoration.none,
+  );
 }
