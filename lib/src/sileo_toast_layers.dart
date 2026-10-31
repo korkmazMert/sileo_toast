@@ -8,6 +8,7 @@ class _ToastEntry extends StatelessWidget {
     required this.drag,
     required this.isTop,
     required this.child,
+    this.island = false,
   });
 
   final Animation<double> presence;
@@ -16,32 +17,45 @@ class _ToastEntry extends StatelessWidget {
   final bool isTop;
   final Widget child;
 
+  /// Island toasts have no scale or translate entry; only the exit fades.
+  final bool island;
+
   @override
-  Widget build(BuildContext context) => FadeTransition(
-    opacity: presence,
-    alwaysIncludeSemantics: true,
-    child: ScaleTransition(
-      scale: scale,
-      child: AnimatedBuilder(
-        animation: presence,
+  Widget build(BuildContext context) {
+    final dragged = AnimatedBuilder(
+      animation: drag,
+      child: child,
+      builder: (context, child) =>
+          Transform.translate(offset: Offset(0, drag.value), child: child),
+    );
+    if (island) {
+      return FadeTransition(
+        opacity: presence,
+        alwaysIncludeSemantics: true,
+        child: dragged,
+      );
+    }
+    return FadeTransition(
+      opacity: presence,
+      alwaysIncludeSemantics: true,
+      child: ScaleTransition(
+        scale: scale,
         child: AnimatedBuilder(
-          animation: drag,
-          child: child,
-          builder: (context, child) =>
-              Transform.translate(offset: Offset(0, drag.value), child: child),
-        ),
-        builder: (context, child) => Transform.translate(
-          offset: Offset(
-            0,
-            (isTop ? -1 : 1) *
-                SileoConstants.entryTranslate *
-                (1 - presence.value),
+          animation: presence,
+          child: dragged,
+          builder: (context, child) => Transform.translate(
+            offset: Offset(
+              0,
+              (isTop ? -1 : 1) *
+                  SileoConstants.entryTranslate *
+                  (1 - presence.value),
+            ),
+            child: child,
           ),
-          child: child,
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// Sizes the toast to its animated height without rebuilding the subtree.
@@ -78,6 +92,8 @@ class _ToastShape extends StatelessWidget {
     required this.bodyOpacity,
     required this.toastHeight,
     required this.repaint,
+    this.neck,
+    this.neckHeight,
   });
 
   final Color fill;
@@ -91,6 +107,8 @@ class _ToastShape extends StatelessWidget {
   final Animation<double> bodyOpacity;
   final Animation<double> toastHeight;
   final Listenable repaint;
+  final Rect? neck;
+  final Animation<double>? neckHeight;
 
   @override
   Widget build(BuildContext context) => Positioned.fill(
@@ -107,6 +125,8 @@ class _ToastShape extends StatelessWidget {
           bodyOpacity: bodyOpacity,
           toastHeight: toastHeight,
           repaint: repaint,
+          neck: neck,
+          neckHeight: neckHeight,
           flipped: flipped,
           verticalInset: SileoConstants.tapExtension,
         ),

@@ -1,12 +1,17 @@
 import 'dart:math' as math;
+import 'dart:ui' show DisplayFeature;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/widgets.dart';
 import 'package:sileo_toast/src/constants.dart';
 import 'package:sileo_toast/src/sileo_controller.dart';
+import 'package:sileo_toast/src/sileo_island.dart';
 import 'package:sileo_toast/src/sileo_options.dart';
 import 'package:sileo_toast/src/sileo_position.dart';
 import 'package:sileo_toast/src/sileo_theme.dart';
 import 'package:sileo_toast/src/sileo_toast_view.dart';
+
+part 'sileo_toaster_viewport.dart';
 
 /// Reads the [SileoController] of the nearest [SileoToaster].
 abstract final class Sileo {
@@ -50,6 +55,7 @@ class SileoToaster extends StatefulWidget {
     this.options,
     this.theme,
     this.textStyle,
+    this.island = SileoIsland.detect,
     this.persistWhenAccessibleNavigation = true,
     super.key,
   });
@@ -76,6 +82,11 @@ class SileoToaster extends StatefulWidget {
   /// Base toast text style; pass the app theme's. Neutral when null.
   final TextStyle? textStyle;
 
+  /// Resolves the camera cutout rect for `SileoPosition.island`, once per
+  /// `MediaQuery` change. Return null for "no island": island toasts then
+  /// look like `topCenter` toasts. Defaults to [SileoIsland.detect].
+  final SileoIslandResolver island;
+
   /// With accessible navigation on, toasts never auto-dismiss.
   final bool persistWhenAccessibleNavigation;
 
@@ -89,6 +100,7 @@ class _SileoToasterState extends State<SileoToaster> {
   late _ScopeNotifier _scope;
   // Hovered or touch-expanded toast ids, oldest first.
   final Set<String> _engaged = {};
+  final _IslandCache _islandCache = _IslandCache();
 
   @override
   void initState() {
@@ -170,6 +182,10 @@ class _SileoToasterState extends State<SileoToaster> {
       safe.bottom + offset.bottom + pad - ext,
     );
 
+    final islandInset = inset.copyWith(
+      top: math.max(0, safe.top + offset.top - ext),
+    );
+
     return _SileoScope(
       notifier: _scope,
       child: Stack(
@@ -206,13 +222,28 @@ class _SileoToasterState extends State<SileoToaster> {
                           ),
                         )
                         .toDouble();
+                    final islandRect =
+                        items.any((i) => i.position == SileoPosition.island)
+                        ? _islandCache.resolve(
+                            widget.island,
+                            MediaQuery.maybeOf(context),
+                          )
+                        : null;
                     return Stack(
                       children: [
                         for (final p in SileoPosition.values)
                           if (items.any((i) => i.position == p))
                             _Viewport(
                               position: p,
-                              inset: inset,
+                              inset:
+                                  islandRect == null ||
+                                      p != SileoPosition.island
+                                  ? inset
+                                  : islandInset,
+                              island: p == SileoPosition.island
+                                  ? islandRect
+                                  : null,
+                              pillTop: safe.top + offset.top,
                               items: [
                                 for (final i in items)
                                   if (i.position == p) i,
@@ -234,81 +265,6 @@ class _SileoToasterState extends State<SileoToaster> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Viewport extends StatelessWidget {
-  const new({
-    required this.position,
-    required this.inset,
-    required this.items,
-    required this.width,
-    required this.largeWidth,
-    required this.fill,
-    required this.textStyle,
-    required this.activeId,
-    required this.persist,
-    required this.onDismiss,
-    required this.onEngaged,
-  });
-
-  final SileoPosition position;
-  final EdgeInsets inset;
-  final List<SileoItem> items;
-  final double width;
-  final double largeWidth;
-  final SileoFill fill;
-  final TextStyle? textStyle;
-  final String? activeId;
-  final bool persist;
-  final void Function(String id) onDismiss;
-  final void Function(String id, {required bool engaged}) onEngaged;
-
-  @override
-  Widget build(BuildContext context) {
-    // Top: newest first. Bottom: newest last. Each view is 8 dp taller than
-    // its toast, so the 12 dp gap shrinks by the same amount.
-    final ordered = position.isTop ? items.reversed.toList() : items;
-    return Positioned.fill(
-      child: Padding(
-        padding: inset,
-        child: Align(
-          alignment: position.pillAlign,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            // Toasts of different sizes keep the viewport's alignment.
-            crossAxisAlignment: switch (position.pillAlign.x) {
-              < 0 => CrossAxisAlignment.start,
-              > 0 => CrossAxisAlignment.end,
-              _ => CrossAxisAlignment.center,
-            },
-            children: [
-              for (var n = 0; n < ordered.length; n++) ...[
-                if (n > 0)
-                  const SizedBox(
-                    height:
-                        SileoConstants.viewportGap -
-                        2 * SileoConstants.tapExtension,
-                  ),
-                SileoToastView(
-                  key: ValueKey(ordered[n].id),
-                  item: ordered[n],
-                  width: width,
-                  largeWidth: largeWidth,
-                  fill: ordered[n].options.fill ?? fill.fill,
-                  descriptionColor: fill.description,
-                  textStyle: textStyle,
-                  canExpand: ordered[n].id == activeId,
-                  persistWhenAccessibleNavigation: persist,
-                  onDismiss: () => onDismiss(ordered[n].id),
-                  onEngagedChanged: (e) => onEngaged(ordered[n].id, engaged: e),
-                ),
-              ],
-            ],
-          ),
-        ),
       ),
     );
   }

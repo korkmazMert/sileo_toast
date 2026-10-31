@@ -52,6 +52,32 @@ class _Home extends StatelessWidget {
               ),
             ),
             _Button(
+              label: 'Large',
+              onTap: () => sileo.success(
+                SileoOptions(
+                  title: 'Order shipped',
+                  description: const Text('Your parcel is on its way.'),
+                  size: SileoSize.large,
+                  trailing: const ColoredBox(color: Color(0xFF4F8EF7)),
+                  button: SileoButton(title: 'Track', onPressed: () {}),
+                  secondaryButton: SileoButton(
+                    title: 'Later',
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+            ),
+            _Button(
+              label: 'Island',
+              onTap: () => sileo.info(
+                SileoOptions(
+                  title: 'Now playing',
+                  description: const Text('Grown out of the camera cutout.'),
+                  position: SileoPosition.island,
+                ),
+              ),
+            ),
+            _Button(
               label: 'Error',
               onTap: () => sileo.error(SileoOptions(title: 'Failed')),
             ),

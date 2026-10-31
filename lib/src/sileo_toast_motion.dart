@@ -135,6 +135,7 @@ class _ToastMotion {
       bodyOpacity = _SpringValue(vsync, 0),
       toastHeight = _SpringValue(vsync, SileoConstants.height),
       drag = _SpringValue(vsync, 0),
+      neckHeight = _SpringValue(vsync, 0),
       presence = _CssValue(vsync, 0),
       headerLeft = _CssValue(vsync, 0),
       headerWidth = _CssValue(vsync, SileoConstants.height),
@@ -148,6 +149,9 @@ class _ToastMotion {
   final _SpringValue bodyOpacity;
   final _SpringValue toastHeight;
   final _SpringValue drag;
+
+  // Island neck length above the pill top.
+  final _SpringValue neckHeight;
 
   // Values Sileo animates with CSS transitions.
   final _CssValue presence;
@@ -165,6 +169,7 @@ class _ToastMotion {
     bodyHeight.controller,
     bodyOpacity.controller,
     toastHeight.controller,
+    neckHeight.controller,
   ]);
   late final Listenable headerAnimation = Listenable.merge([
     headerLeft,
@@ -181,10 +186,17 @@ class _ToastMotion {
     required double expanded,
     required double pillX,
     required double pillWidth,
+    required double neckHeight,
+    required bool animateNeck,
   }) {
     final bodySpring = open ? sileoSpring : sileoCloseSpring;
     this.pillX.moveTo(pillX, spring: sileoSpring, animate: animate);
     this.pillWidth.moveTo(pillWidth, spring: sileoSpring, animate: animate);
+    this.neckHeight.moveTo(
+      neckHeight,
+      spring: sileoSpring,
+      animate: animateNeck,
+    );
     bodyHeight.moveTo(
       open ? math.max(0, expanded - header) : 0,
       spring: bodySpring,
@@ -220,6 +232,7 @@ class _ToastMotion {
       bodyOpacity,
       toastHeight,
       drag,
+      neckHeight,
     ]) {
       v.dispose();
     }

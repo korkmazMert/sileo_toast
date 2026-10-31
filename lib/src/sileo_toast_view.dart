@@ -42,6 +42,8 @@ class SileoToastView extends StatefulWidget {
     required this.width,
     required this.fill,
     this.largeWidth,
+    this.island,
+    this.pillTop = 0,
     this.descriptionColor,
     this.textStyle,
     this.stateColors = const SileoStateColors(),
@@ -61,6 +63,13 @@ class SileoToastView extends StatefulWidget {
   /// Toast width of a large toast (full available width, capped); [width]
   /// when null.
   final double? largeWidth;
+
+  /// Resolved island rect (screen coordinates) for an island toast, or null
+  /// for a plain toast. The host passes it only for `SileoPosition.island`.
+  final Rect? island;
+
+  /// Screen y of the pill top; the neck spans `island.top` to here.
+  final double pillTop;
 
   /// Toast fill (option, else theme fill).
   final Color fill;
@@ -134,6 +143,11 @@ class _SileoToastViewState extends State<SileoToastView>
   bool get _open => _hasContent && _isExpanded && !_isLoading;
   bool get _allowExpand => !_isLoading && widget.canExpand;
   bool get _exiting => widget.item.exiting;
+  Rect? get _island => widget.island;
+  // Neck length from the island top (bled) down to the pill top.
+  double get _neckFull => _island == null
+      ? 0
+      : math.max(0, widget.pillTop - _island!.top + SileoConstants.islandBleed);
   double get _width =>
       _metrics.large ? widget.largeWidth ?? widget.width : widget.width;
 
@@ -154,7 +168,20 @@ class _SileoToastViewState extends State<SileoToastView>
     _accessibleNavigation = accessible;
     if (!_initialized) {
       _initialized = true;
-      _m.presence.moveTo(_exiting ? 0 : 1, animate: !_reduceMotion);
+      final island = _island;
+      if (island != null) {
+        // The pill grows out of the neck: it starts at the island width.
+        final w = math.min(island.width, _width);
+        final x = (_width - w) / 2;
+        _m.pillWidth.moveTo(w, spring: sileoSpring, animate: false);
+        _m.pillX.moveTo(x, spring: sileoSpring, animate: false);
+        _m.headerWidth.moveTo(w, animate: false);
+        _m.headerLeft.moveTo(x, animate: false);
+      }
+      _m.presence.moveTo(
+        _exiting ? 0 : 1,
+        animate: !_reduceMotion && island == null,
+      );
       _scheduleAutopilot();
     } else if (accessibleChanged) {
       _scheduleAutopilot();
@@ -397,10 +424,14 @@ class _SileoToastViewState extends State<SileoToastView>
   /// Points every animated value at its target. Nothing animates until the
   /// first measurement (Sileo's `ready` flag) or under reduce motion.
   void _retarget() {
-    final animate = _measured && !_reduceMotion;
+    final island = _island;
+    final animate =
+        (_measured || (island != null && _rowWidth > 0)) && !_reduceMotion;
     final header = _metrics.header;
     final width = _width;
-    final pill = _rowWidth <= 0
+    final pill = island != null && (_exiting || _rowWidth <= 0)
+        ? math.min(island.width, width)
+        : _rowWidth <= 0
         ? header
         : math.max(
             header,
@@ -425,6 +456,8 @@ class _SileoToastViewState extends State<SileoToastView>
       expanded: expanded,
       pillX: pillX,
       pillWidth: pill,
+      neckHeight: island == null || _exiting ? 0 : _neckFull,
+      animateNeck: !_reduceMotion,
     );
   }
 
@@ -446,6 +479,14 @@ class _SileoToastViewState extends State<SileoToastView>
       decoration: TextDecoration.none,
     );
     final toneOf = widget.stateColors.of;
+    final island = _island;
+    final neck = island == null
+        ? null
+        : Rect.fromCenter(
+            center: Offset(_width / 2, -_neckFull / 2),
+            width: island.width + 2 * SileoConstants.islandBleed,
+            height: island.height + 2 * SileoConstants.islandBleed,
+          );
 
     final box = _ToastBox(
       width: _width,
@@ -462,6 +503,8 @@ class _SileoToastViewState extends State<SileoToastView>
             width: _width,
             headerHeight: _metrics.header,
             flipped: !isTop,
+            neck: neck,
+            neckHeight: neck == null ? null : _m.neckHeight.controller,
             pillX: _m.pillX.controller,
             pillWidth: _m.pillWidth.controller,
             bodyHeight: _m.bodyHeight.controller,
@@ -523,6 +566,7 @@ class _SileoToastViewState extends State<SileoToastView>
           scale: _m.scale,
           drag: _m.drag.controller,
           isTop: isTop,
+          island: island != null,
           child: IgnorePointer(
             ignoring: exiting,
             child: Semantics(

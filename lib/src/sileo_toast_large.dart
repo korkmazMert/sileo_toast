@@ -1,5 +1,6 @@
 part of 'sileo_toast_view.dart';
 
+// Fallback label tone when neither the theme nor the text style has a color.
 const Color _secondaryTone = Color(0xFFFFFFFF);
 
 /// Large body: description and trailing thumbnail, then the buttons row.
@@ -23,6 +24,13 @@ class _LargeBody extends StatelessWidget {
     final primary = view.button;
     final secondary = view.secondaryButton;
     const gap = SileoConstants.largeButtonGap;
+    // Reads on every fill: the theme's description color (opaque), else the
+    // ambient text color.
+    final secondaryTone =
+        (descriptionColor ??
+                DefaultTextStyle.of(context).style.color ??
+                _secondaryTone)
+            .withValues(alpha: 1);
     return Padding(
       padding: EdgeInsets.all(padding),
       child: Column(
@@ -76,7 +84,7 @@ class _LargeBody extends StatelessWidget {
                     Expanded(
                       child: _ActionButton(
                         button: secondary,
-                        tone: _secondaryTone,
+                        tone: secondaryTone,
                         styles: null,
                         pillHeight: SileoConstants.largeButtonHeight,
                         fontSize: SileoConstants.largeButtonFontSize,
