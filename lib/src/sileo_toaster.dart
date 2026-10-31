@@ -197,6 +197,15 @@ class _SileoToasterState extends State<SileoToaster> {
                           ),
                         )
                         .toDouble();
+                    final largeWidth = math
+                        .max(
+                          0,
+                          math.min(
+                            SileoConstants.largeMaxWidth,
+                            constraints.maxWidth - inset.horizontal,
+                          ),
+                        )
+                        .toDouble();
                     return Stack(
                       children: [
                         for (final p in SileoPosition.values)
@@ -209,6 +218,7 @@ class _SileoToasterState extends State<SileoToaster> {
                                   if (i.position == p) i,
                               ],
                               width: width,
+                              largeWidth: largeWidth,
                               fill: fill,
                               textStyle: widget.textStyle,
                               activeId: active,
@@ -235,6 +245,7 @@ class _Viewport extends StatelessWidget {
     required this.inset,
     required this.items,
     required this.width,
+    required this.largeWidth,
     required this.fill,
     required this.textStyle,
     required this.activeId,
@@ -247,6 +258,7 @@ class _Viewport extends StatelessWidget {
   final EdgeInsets inset;
   final List<SileoItem> items;
   final double width;
+  final double largeWidth;
   final SileoFill fill;
   final TextStyle? textStyle;
   final String? activeId;
@@ -266,6 +278,12 @@ class _Viewport extends StatelessWidget {
           alignment: position.pillAlign,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            // Toasts of different sizes keep the viewport's alignment.
+            crossAxisAlignment: switch (position.pillAlign.x) {
+              < 0 => CrossAxisAlignment.start,
+              > 0 => CrossAxisAlignment.end,
+              _ => CrossAxisAlignment.center,
+            },
             children: [
               for (var n = 0; n < ordered.length; n++) ...[
                 if (n > 0)
@@ -278,6 +296,7 @@ class _Viewport extends StatelessWidget {
                   key: ValueKey(ordered[n].id),
                   item: ordered[n],
                   width: width,
+                  largeWidth: largeWidth,
                   fill: ordered[n].options.fill ?? fill.fill,
                   descriptionColor: fill.description,
                   textStyle: textStyle,

@@ -18,7 +18,9 @@ import 'package:sileo_toast/src/sileo_theme.dart';
 
 part 'sileo_toast_content.dart';
 part 'sileo_toast_header.dart';
+part 'sileo_toast_large.dart';
 part 'sileo_toast_layers.dart';
+part 'sileo_toast_metrics.dart';
 part 'sileo_toast_motion.dart';
 
 /// One toast: springs, header crossfade, gestures and semantics.
@@ -39,6 +41,7 @@ class SileoToastView extends StatefulWidget {
     required this.item,
     required this.width,
     required this.fill,
+    this.largeWidth,
     this.descriptionColor,
     this.textStyle,
     this.stateColors = const SileoStateColors(),
@@ -54,6 +57,10 @@ class SileoToastView extends StatefulWidget {
 
   /// Toast width: `min(350, available - 2 * 12)`, resolved by the host.
   final double width;
+
+  /// Toast width of a large toast (full available width, capped); [width]
+  /// when null.
+  final double? largeWidth;
 
   /// Toast fill (option, else theme fill).
   final Color fill;
@@ -107,7 +114,8 @@ class _SileoToastViewState extends State<SileoToastView>
   bool _retargetQueued = false;
 
   bool _initialized = false;
-  double _headerHeight = SileoConstants.height;
+  TextScaler _scaler = TextScaler.noScaling;
+  late _Metrics _metrics = _Metrics.of(_view.size, _scaler);
   bool _reduceMotion = false;
   bool _accessibleNavigation = false;
 
@@ -126,6 +134,8 @@ class _SileoToastViewState extends State<SileoToastView>
   bool get _open => _hasContent && _isExpanded && !_isLoading;
   bool get _allowExpand => !_isLoading && widget.canExpand;
   bool get _exiting => widget.item.exiting;
+  double get _width =>
+      _metrics.large ? widget.largeWidth ?? widget.width : widget.width;
 
   @override
   void initState() {
@@ -136,13 +146,8 @@ class _SileoToastViewState extends State<SileoToastView>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final scaler =
-        MediaQuery.maybeTextScalerOf(context) ?? TextScaler.noScaling;
-    _headerHeight = math.max(
-      SileoConstants.height,
-      scaler.scale(SileoConstants.titleLineHeight) +
-          2 * SileoConstants.headerPadding,
-    );
+    _scaler = MediaQuery.maybeTextScalerOf(context) ?? TextScaler.noScaling;
+    _metrics = _Metrics.of(_view.size, _scaler);
     _reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final accessible = MediaQuery.maybeAccessibleNavigationOf(context) ?? false;
     final accessibleChanged = accessible != _accessibleNavigation;
@@ -238,6 +243,7 @@ class _SileoToastViewState extends State<SileoToastView>
 
   void _applyView(_View next) {
     _view = next;
+    _metrics = _Metrics.of(next.size, _scaler);
     if (!next.hasContent) _contentHeight = 0;
     if (next.headerKey != _current.headerKey) {
       _prevTimer?.cancel();
@@ -392,8 +398,8 @@ class _SileoToastViewState extends State<SileoToastView>
   /// first measurement (Sileo's `ready` flag) or under reduce motion.
   void _retarget() {
     final animate = _measured && !_reduceMotion;
-    final header = _headerHeight;
-    final width = widget.width;
+    final header = _metrics.header;
+    final width = _width;
     final pill = _rowWidth <= 0
         ? header
         : math.max(
@@ -442,7 +448,7 @@ class _SileoToastViewState extends State<SileoToastView>
     final toneOf = widget.stateColors.of;
 
     final box = _ToastBox(
-      width: widget.width,
+      width: _width,
       height: _m.toastHeight.controller,
       child: Stack(
         clipBehavior: Clip.none,
@@ -451,10 +457,10 @@ class _SileoToastViewState extends State<SileoToastView>
             fill: widget.fill,
             roundness: math.max(
               0,
-              item.options.roundness ?? SileoConstants.defaultRoundness,
+              item.options.roundness ?? _metrics.roundness,
             ),
-            width: widget.width,
-            headerHeight: _headerHeight,
+            width: _width,
+            headerHeight: _metrics.header,
             flipped: !isTop,
             pillX: _m.pillX.controller,
             pillWidth: _m.pillWidth.controller,
@@ -479,7 +485,8 @@ class _SileoToastViewState extends State<SileoToastView>
                       opacity: _m.contentOpacity,
                       open: _open,
                       isTop: isTop,
-                      headerHeight: _headerHeight,
+                      headerHeight: _metrics.header,
+                      metrics: _metrics,
                       onSize: _onContentSize,
                     ),
                   _ToastHeader(
@@ -491,9 +498,10 @@ class _SileoToastViewState extends State<SileoToastView>
                     prev: _prev,
                     toneOf: toneOf,
                     isTop: isTop,
-                    height: _headerHeight,
+                    height: _metrics.header,
+                    metrics: _metrics,
                     maxRowWidth:
-                        widget.width -
+                        _width -
                         2 * SileoConstants.headerPadding -
                         SileoConstants.pillPadding,
                     onRowSize: _onRowSize,

@@ -8,14 +8,24 @@ class _ContentBody extends StatelessWidget {
     required this.view,
     required this.tone,
     required this.descriptionColor,
+    required this.metrics,
   });
 
   final _View view;
   final Color tone;
   final Color? descriptionColor;
+  final _Metrics metrics;
 
   @override
   Widget build(BuildContext context) {
+    if (metrics.large) {
+      return _LargeBody(
+        view: view,
+        tone: tone,
+        descriptionColor: descriptionColor,
+        padding: metrics.bodyPadding,
+      );
+    }
     final description = view.description;
     final button = view.button;
     const pad = SileoConstants.descriptionPadding;
@@ -61,11 +71,27 @@ class _ContentBody extends StatelessWidget {
 
 /// The action button: a 28 dp pill in a 48 dp hit box with its own gesture.
 class _ActionButton extends StatefulWidget {
-  const new({required this.button, required this.tone, required this.styles});
+  const new({
+    required this.button,
+    required this.tone,
+    required this.styles,
+    this.pillHeight = SileoConstants.buttonHeight,
+    this.fontSize = SileoConstants.buttonFontSize,
+    this.maxLines,
+    this.idleAlpha = SileoConstants.buttonAlpha,
+  });
 
   final SileoButton button;
   final Color tone;
   final SileoStyles? styles;
+
+  /// Pill height inside the 48 dp hit box.
+  final double pillHeight;
+  final double fontSize;
+
+  /// Label line limit; also centers a wrapped label. Null: unlimited, as is.
+  final int? maxLines;
+  final double idleAlpha;
 
   @override
   State<_ActionButton> createState() => _ActionButtonState();
@@ -98,8 +124,7 @@ class _ActionButtonState extends State<_ActionButton> {
     final background = highlighted
         ? styles?.buttonPressedBackground ??
               tone.withValues(alpha: SileoConstants.buttonPressedAlpha)
-        : styles?.buttonBackground ??
-              tone.withValues(alpha: SileoConstants.buttonAlpha);
+        : styles?.buttonBackground ?? tone.withValues(alpha: widget.idleAlpha);
     final fade = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
         ? Duration.zero
         : SileoConstants.buttonFade;
@@ -131,9 +156,7 @@ class _ActionButtonState extends State<_ActionButton> {
               ),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: SileoConstants.buttonHeight,
-                  ),
+                  constraints: BoxConstraints(minHeight: widget.pillHeight),
                   child: AnimatedContainer(
                     duration: fade,
                     decoration: ShapeDecoration(
@@ -153,8 +176,12 @@ class _ActionButtonState extends State<_ActionButton> {
                     alignment: Alignment.center,
                     child: Text(
                       widget.button.title,
+                      maxLines: widget.maxLines,
+                      textAlign: widget.maxLines == null
+                          ? null
+                          : TextAlign.center,
                       style: TextStyle(
-                        fontSize: SileoConstants.buttonFontSize,
+                        fontSize: widget.fontSize,
                         fontWeight: SileoConstants.buttonWeight,
                         color: styles?.buttonForeground ?? tone,
                       ),

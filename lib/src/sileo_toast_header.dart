@@ -10,6 +10,9 @@ class _View {
     required this.icon,
     required this.styles,
     required this.button,
+    required this.size,
+    required this.trailing,
+    required this.secondaryButton,
   });
 
   factory of(SileoOptions o) {
@@ -24,6 +27,9 @@ class _View {
       icon: o.icon,
       styles: o.styles,
       button: o.button,
+      size: o.size ?? SileoSize.compact,
+      trailing: o.trailing,
+      secondaryButton: o.secondaryButton,
     );
   }
 
@@ -33,8 +39,15 @@ class _View {
   final Widget? icon;
   final SileoStyles? styles;
   final SileoButton? button;
+  final SileoSize size;
+  final Widget? trailing;
+  final SileoButton? secondaryButton;
 
-  bool get hasContent => description != null || button != null;
+  /// Compact ignores [trailing] and [secondaryButton].
+  bool get hasContent =>
+      description != null ||
+      button != null ||
+      (size == SileoSize.large && secondaryButton != null);
 
   /// Header layers are keyed by this; a change plays the crossfade.
   String get headerKey => '${state.name}-$title';
@@ -48,6 +61,7 @@ class _HeaderLayer extends StatefulWidget {
     required this.view,
     required this.tone,
     required this.transition,
+    required this.metrics,
     this.onRowSize,
     super.key,
   });
@@ -55,6 +69,7 @@ class _HeaderLayer extends StatefulWidget {
   final _View view;
   final Color tone;
   final _Transition transition;
+  final _Metrics metrics;
   final ValueChanged<Size>? onRowSize;
 
   @override
@@ -100,10 +115,11 @@ class _HeaderLayerState extends State<_HeaderLayer>
   Widget build(BuildContext context) {
     final view = widget.view;
     final base = DefaultTextStyle.of(context).style;
+    final metrics = widget.metrics;
     final title = base
         .copyWith(
-          fontSize: SileoConstants.titleFontSize,
-          height: SileoConstants.titleLineHeight / SileoConstants.titleFontSize,
+          fontSize: metrics.titleSize,
+          height: metrics.titleLine / metrics.titleSize,
           fontWeight: SileoConstants.titleWeight,
           color: widget.tone,
         )
@@ -111,7 +127,7 @@ class _HeaderLayerState extends State<_HeaderLayer>
     final row = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _Badge(view: view, tone: widget.tone),
+        _Badge(view: view, tone: widget.tone, metrics: metrics),
         const SizedBox(width: SileoConstants.headerGap),
         Flexible(
           child: Text(
@@ -147,10 +163,11 @@ class _HeaderLayerState extends State<_HeaderLayer>
 }
 
 class _Badge extends StatelessWidget {
-  const new({required this.view, required this.tone});
+  const new({required this.view, required this.tone, required this.metrics});
 
   final _View view;
   final Color tone;
+  final _Metrics metrics;
 
   static SileoIcon _icon(SileoState s) => switch (s) {
     SileoState.success => SileoIcon.check,
@@ -169,24 +186,21 @@ class _Badge extends StatelessWidget {
     final Widget icon;
     if (custom != null) {
       icon = IconTheme(
-        data: IconThemeData(
-          color: foreground,
-          size: SileoConstants.badgeIconSize,
-        ),
+        data: IconThemeData(color: foreground, size: metrics.icon),
         child: custom,
       );
     } else if (view.state == SileoState.loading) {
-      icon = _Spinner(color: foreground);
+      icon = _Spinner(color: foreground, size: metrics.icon);
     } else {
       icon = SizedBox.square(
-        dimension: SileoConstants.badgeIconSize,
+        dimension: metrics.icon,
         child: CustomPaint(
           painter: SileoIconPainter(icon: _icon(view.state), color: foreground),
         ),
       );
     }
     return SizedBox.square(
-      dimension: SileoConstants.badgeSize,
+      dimension: metrics.badge,
       child: DecoratedBox(
         decoration: ShapeDecoration(
           shape: const CircleBorder(),
@@ -205,9 +219,10 @@ class _Badge extends StatelessWidget {
 
 /// The loading icon: one turn per second, still under reduce motion.
 class _Spinner extends StatefulWidget {
-  const new({required this.color});
+  const new({required this.color, required this.size});
 
   final Color color;
+  final double size;
 
   @override
   State<_Spinner> createState() => _SpinnerState();
@@ -241,7 +256,7 @@ class _SpinnerState extends State<_Spinner>
     child: RotationTransition(
       turns: _c,
       child: SizedBox.square(
-        dimension: SileoConstants.badgeIconSize,
+        dimension: widget.size,
         child: CustomPaint(
           painter: SileoIconPainter(
             icon: SileoIcon.loaderCircle,

@@ -125,6 +125,7 @@ class _ToastContent extends StatelessWidget {
     required this.open,
     required this.isTop,
     required this.headerHeight,
+    required this.metrics,
     required this.onSize,
   });
 
@@ -135,6 +136,7 @@ class _ToastContent extends StatelessWidget {
   final bool open;
   final bool isTop;
   final double headerHeight;
+  final _Metrics metrics;
   final ValueChanged<Size> onSize;
 
   @override
@@ -159,6 +161,7 @@ class _ToastContent extends StatelessWidget {
                 view: view,
                 tone: tone,
                 descriptionColor: descriptionColor,
+                metrics: metrics,
               ),
             ),
           ),
@@ -181,6 +184,7 @@ class _ToastHeader extends StatelessWidget {
     required this.toneOf,
     required this.isTop,
     required this.height,
+    required this.metrics,
     required this.maxRowWidth,
     required this.onRowSize,
   });
@@ -194,6 +198,7 @@ class _ToastHeader extends StatelessWidget {
   final Color Function(SileoState) toneOf;
   final bool isTop;
   final double height;
+  final _Metrics metrics;
   final double maxRowWidth;
   final ValueChanged<Size> onRowSize;
 
@@ -223,6 +228,7 @@ class _ToastHeader extends StatelessWidget {
                     transition: previous == null
                         ? _Transition.none
                         : _Transition.enter,
+                    metrics: metrics,
                     onRowSize: onRowSize,
                   ),
                   if (previous != null)
@@ -238,6 +244,7 @@ class _ToastHeader extends StatelessWidget {
                           view: previous,
                           tone: toneOf(previous.state),
                           transition: _Transition.exit,
+                          metrics: metrics,
                         ),
                       ),
                     ),
