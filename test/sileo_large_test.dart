@@ -679,6 +679,34 @@ void main() {
     });
   });
 
+  group('2.0 text at 320 dp, long Turkish labels', () {
+    // Mutation: maxLines cap clips a third line.
+    testWidgets('both button labels are laid out in full', (tester) async {
+      await _host(
+        tester,
+        c,
+        size: const Size(320, 640),
+        scaler: const TextScaler.linear(2),
+      );
+      const label = 'Teslimatı onayla ve devam et';
+      c.show(
+        _large(title: 'Hi', button: _b(label), secondaryButton: _b('$label ')),
+      );
+      await _wait(tester, 1000);
+      await _open(tester, title: 'Hi');
+      expect(tester.takeException(), isNull);
+      for (final f in [find.text(label), find.text('$label ')]) {
+        final p = tester.renderObject<RenderParagraph>(f);
+        expect(p.didExceedMaxLines, isFalse);
+        final line = (p.text.style!.fontSize ?? 0) * 2;
+        expect(p.size.height, greaterThan(2 * line), reason: '3+ lines');
+      }
+      expect(_btn(tester, label).height, greaterThanOrEqualTo(48));
+      expect(_btn(tester, '$label ').height, greaterThanOrEqualTo(48));
+      await end(tester);
+    });
+  });
+
   group('semantics', () {
     SemanticsNode node(WidgetTester t, Pattern label) =>
         t.getSemantics(find.bySemanticsLabel(label));
@@ -718,23 +746,21 @@ void main() {
       await end(tester);
     });
 
-    // Plan §7.4/§9: container label = title (+ description) exactly once.
-    // Actual (compact and large alike): "Delivery\nBody text\nBody text" - the
-    // description Text's own node is merged on top of the explicit label.
-    // Confirmed spec/code mismatch, reported to the caller.
-    testWidgets(
-      'container label is exactly title + description, once',
-      (tester) async {
-        handle = tester.ensureSemantics();
-        await _host(tester, c);
-        c.show(_large(description: const Text('Body text')));
-        await _wait(tester, 1000);
-        await _open(tester);
-        expect(node(tester, RegExp('^Delivery')).label, 'Delivery\nBody text');
-        await end(tester);
-      },
-      skip: true, // spec/code mismatch: see comment above.
-    );
+    // Plan §7.4/§9: container label = title (+ description) exactly once:
+    // from the label while the body is excluded (closed), from the body node
+    // while open.
+    testWidgets('container label is exactly title + description, once', (
+      tester,
+    ) async {
+      handle = tester.ensureSemantics();
+      await _host(tester, c);
+      c.show(_large(description: const Text('Body text')));
+      await _wait(tester, 1000);
+      expect(node(tester, RegExp('^Delivery')).label, 'Delivery\nBody text');
+      await _open(tester);
+      expect(node(tester, RegExp('^Delivery')).label, 'Delivery\nBody text');
+      await end(tester);
+    });
 
     // Mutation: the trailing is exposed to semantics.
     testWidgets('an unlabeled trailing adds no semantics node', (tester) async {
@@ -755,27 +781,22 @@ void main() {
     });
 
     // Plan §7.4: "excluded from semantics unless it carries its own label".
-    // The implementation wraps the trailing in ExcludeSemantics
-    // unconditionally (sileo_toast_large.dart), so a labeled trailing is
-    // hidden: confirmed spec/code mismatch, reported to the caller.
-    testWidgets(
-      'a trailing with its own label stays in semantics',
-      (tester) async {
-        handle = tester.ensureSemantics();
-        await _host(tester, c);
-        c.show(
-          _large(
-            trailing: Semantics(label: 'Courier photo', child: _thumb),
-            button: _b('Accept'),
-          ),
-        );
-        await _wait(tester, 1000);
-        await _open(tester);
-        expect(find.bySemanticsLabel('Courier photo'), findsOneWidget);
-        await end(tester);
-      },
-      skip: true, // spec/code mismatch: see comment above.
-    );
+    testWidgets('a trailing with its own label stays in semantics', (
+      tester,
+    ) async {
+      handle = tester.ensureSemantics();
+      await _host(tester, c);
+      c.show(
+        _large(
+          trailing: Semantics(label: 'Courier photo', child: _thumb),
+          button: _b('Accept'),
+        ),
+      );
+      await _wait(tester, 1000);
+      await _open(tester);
+      expect(find.bySemanticsLabel('Courier photo'), findsOneWidget);
+      await end(tester);
+    });
   });
 
   group('compact -> large morph (same id)', () {

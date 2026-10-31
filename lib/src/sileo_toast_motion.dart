@@ -17,6 +17,7 @@ class _SpringValue {
     required bool animate,
   }) {
     if (!animate) {
+      if (controller.value == next && target == next) return;
       target = next;
       controller.value = next; // also stops a running simulation
       return;

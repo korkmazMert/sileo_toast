@@ -162,6 +162,28 @@ class _SileoToasterState extends State<SileoToaster> {
     }
   }
 
+  /// Only the aspects the island geometry reads, so a keyboard or text-scale
+  /// change does not rebuild the viewports. A custom resolver sees defaults
+  /// for every other field.
+  MediaQueryData? _islandMedia(BuildContext context) {
+    final size = MediaQuery.maybeSizeOf(context);
+    final padding = MediaQuery.maybePaddingOf(context);
+    final viewPadding = MediaQuery.maybeViewPaddingOf(context);
+    final features = MediaQuery.maybeDisplayFeaturesOf(context);
+    if (size == null ||
+        padding == null ||
+        viewPadding == null ||
+        features == null) {
+      return null;
+    }
+    return MediaQueryData(
+      size: size,
+      padding: padding,
+      viewPadding: viewPadding,
+      displayFeatures: features,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     _controller.suppressAutoDismiss =
@@ -226,7 +248,7 @@ class _SileoToasterState extends State<SileoToaster> {
                         items.any((i) => i.position == SileoPosition.island)
                         ? _islandCache.resolve(
                             widget.island,
-                            MediaQuery.maybeOf(context),
+                            _islandMedia(context),
                           )
                         : null;
                     return Stack(

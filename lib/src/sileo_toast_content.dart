@@ -77,7 +77,6 @@ class _ActionButton extends StatefulWidget {
     required this.styles,
     this.pillHeight = SileoConstants.buttonHeight,
     this.fontSize = SileoConstants.buttonFontSize,
-    this.maxLines,
     this.idleAlpha = SileoConstants.buttonAlpha,
   });
 
@@ -90,7 +89,6 @@ class _ActionButton extends StatefulWidget {
   final double fontSize;
 
   /// Label line limit; also centers a wrapped label. Null: unlimited, as is.
-  final int? maxLines;
   final double idleAlpha;
 
   @override
@@ -176,10 +174,7 @@ class _ActionButtonState extends State<_ActionButton> {
                     alignment: Alignment.center,
                     child: Text(
                       widget.button.title,
-                      maxLines: widget.maxLines,
-                      textAlign: widget.maxLines == null
-                          ? null
-                          : TextAlign.center,
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: widget.fontSize,
                         fontWeight: SileoConstants.buttonWeight,

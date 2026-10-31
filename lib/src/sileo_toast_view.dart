@@ -381,8 +381,11 @@ class _SileoToastViewState extends State<SileoToastView>
 
   void _onDragUpdate(DragUpdateDetails details) {
     _dragDy = details.globalPosition.dy - _dragStartY;
+    // An island pill must not slide up into the status-bar row.
+    var shown = _dragDy;
+    if (_island != null && shown < 0) shown = 0;
     _m.drag.moveTo(
-      _dragDy.sign * math.min(_dragDy.abs(), SileoConstants.swipeMax),
+      shown.sign * math.min(shown.abs(), SileoConstants.swipeMax),
       spring: sileoSpring,
       animate: false,
     );
@@ -466,7 +469,9 @@ class _SileoToastViewState extends State<SileoToastView>
   String get _semanticsLabel {
     final description = _view.description;
     final text = description is Text ? description.data : null;
-    return text == null ? _view.title : '${_view.title}\n$text';
+    // Open: the body node supplies the description; naming it here too would
+    // read it twice.
+    return text == null || _open ? _view.title : '${_view.title}\n$text';
   }
 
   @override

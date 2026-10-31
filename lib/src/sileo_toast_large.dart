@@ -1,7 +1,18 @@
 part of 'sileo_toast_view.dart';
 
-// Fallback label tone when neither the theme nor the text style has a color.
-const Color _secondaryTone = Color(0xFFFFFFFF);
+/// Hides an unlabeled trailing from semantics. A top-level `Semantics` is the
+/// caller's own label: it stays, as its own node.
+class _TrailingSlot extends StatelessWidget {
+  const new({required this.trailing, required this.child});
+
+  final Widget trailing;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => trailing is Semantics
+      ? Semantics(container: true, child: child)
+      : ExcludeSemantics(child: child);
+}
 
 /// Large body: description and trailing thumbnail, then the buttons row.
 class _LargeBody extends StatelessWidget {
@@ -29,7 +40,7 @@ class _LargeBody extends StatelessWidget {
     final secondaryTone =
         (descriptionColor ??
                 DefaultTextStyle.of(context).style.color ??
-                _secondaryTone)
+                SileoConstants.lightDescription)
             .withValues(alpha: 1);
     return Padding(
       padding: EdgeInsets.all(padding),
@@ -57,7 +68,8 @@ class _LargeBody extends StatelessWidget {
                 ),
                 if (trailing != null) ...[
                   const SizedBox(width: gap),
-                  ExcludeSemantics(
+                  _TrailingSlot(
+                    trailing: trailing,
                     child: RepaintBoundary(
                       child: ClipRRect(
                         borderRadius: const BorderRadius.all(
@@ -88,7 +100,6 @@ class _LargeBody extends StatelessWidget {
                         styles: null,
                         pillHeight: SileoConstants.largeButtonHeight,
                         fontSize: SileoConstants.largeButtonFontSize,
-                        maxLines: 2,
                         idleAlpha: SileoConstants.largeSecondaryAlpha,
                       ),
                     ),
@@ -102,7 +113,6 @@ class _LargeBody extends StatelessWidget {
                         styles: view.styles,
                         pillHeight: SileoConstants.largeButtonHeight,
                         fontSize: SileoConstants.largeButtonFontSize,
-                        maxLines: 2,
                       ),
                     ),
                 ],

@@ -58,7 +58,7 @@ Same-id toasts morph into each other; distinct ids stack (top newest first, bott
 
 `SileoOptions(size: SileoSize.large)` (or a toaster default through `options`) gives a full-width card capped at 520 dp: title row, description, an optional `trailing` thumbnail
 (sized and clipped to 64 dp by the package; pass a `ResizeImage`d widget, the package never decodes images) and up to two buttons. `secondaryButton` sits left of `button`
-in equal cells. Compact ignores `trailing` and `secondaryButton`.
+in equal cells; long button labels wrap and grow the button. `trailing` is hidden from screen readers unless it is a `Semantics` widget (give it a label). Compact ignores `trailing` and `secondaryButton`.
 
 ## Island
 

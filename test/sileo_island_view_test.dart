@@ -750,6 +750,113 @@ void main() {
     });
   });
 
+  group('drag and keyboard', () {
+    // Mutation: an upward drag moves the pill into the status-bar row.
+    testWidgets(
+      'upward drag keeps the pill at padding.top; far drag dismisses',
+      (tester) async {
+        await _host(tester, c, _mq());
+        c.show(_toast());
+        await _wait(tester, 1500);
+        expect(_pillTop(tester), closeTo(59, 0.01));
+        final g = await tester.startGesture(tester.getCenter(find.text('Hi')));
+        await g.moveBy(const Offset(0, -25));
+        await tester.pump();
+        await g.moveBy(const Offset(0, -2));
+        await tester.pump();
+        expect(_pillTop(tester), closeTo(59, 0.01));
+        await g.up();
+        await _wait(tester, 800);
+        expect(_pillTop(tester), closeTo(59, 0.01));
+        expect(find.text('Hi'), findsOneWidget, reason: '27 up < threshold');
+
+        final g2 = await tester.startGesture(tester.getCenter(find.text('Hi')));
+        await g2.moveBy(const Offset(0, -20));
+        await g2.moveBy(const Offset(0, -20));
+        await tester.pump();
+        expect(_pillTop(tester), closeTo(59, 0.01));
+        await g2.up();
+        await _wait(tester, 1500);
+        expect(find.text('Hi'), findsNothing);
+        await end(tester);
+      },
+    );
+
+    // Mutation: the island path reads the whole MediaQueryData.
+    testWidgets('a viewInsets change does not rebuild the toast view', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(393, 852)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final mq = ValueNotifier(_mq());
+      addTearDown(mq.dispose);
+      await tester.pumpWidget(
+        ValueListenableBuilder<MediaQueryData>(
+          valueListenable: mq,
+          builder: (context, data, child) =>
+              MediaQuery(data: data, child: child!),
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: SileoToaster(
+              controller: c,
+              position: SileoPosition.topCenter,
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+      c.show(_toast());
+      await _wait(tester, 1500);
+      _countRebuilds();
+      mq.value = mq.value.copyWith(
+        viewInsets: const EdgeInsets.only(bottom: 300),
+      );
+      await tester.pump();
+      expect(_rebuilds, 0);
+      await end(tester);
+    });
+
+    // Guard: header content is not re-recorded while only the drag transform
+    // moves (holds without a RepaintBoundary: Transform updates its layer).
+    testWidgets('header does not repaint while the drag transform moves', (
+      tester,
+    ) async {
+      await _host(tester, c, _mq());
+      final painter = _CountingPainter();
+      c.show(
+        SileoOptions(
+          title: 'Hi',
+          id: 'i',
+          position: SileoPosition.island,
+          icon: CustomPaint(size: const Size(8, 8), painter: painter),
+          persistent: true,
+          autopilot: SileoAutopilot.off,
+        ),
+      );
+      await _wait(tester, 1500);
+      final g = await tester.startGesture(tester.getCenter(find.text('Hi')));
+      for (final dy in [30.0, 1.0, 1.0]) {
+        await g.moveBy(Offset(0, dy));
+        await tester.pump();
+      }
+      await _wait(tester, 200);
+      final before = painter.paints;
+      final top = _pillTop(tester);
+      for (var i = 0; i < 10; i++) {
+        await g.moveBy(const Offset(0, -3));
+        await tester.pump();
+      }
+      expect(_pillTop(tester), lessThan(top), reason: 'transform moved');
+      expect(painter.paints, greaterThan(0), reason: 'icon painted');
+      expect(painter.paints, before);
+      await g.up();
+      await _wait(tester, 800);
+      await end(tester);
+    });
+  });
+
   group('performance', () {
     // Mutation: a package widget rebuilds each frame while the neck/body
     // springs run.
@@ -830,4 +937,14 @@ void main() {
       await end(tester);
     });
   });
+}
+
+class _CountingPainter extends CustomPainter {
+  int paints = 0;
+
+  @override
+  void paint(Canvas canvas, Size size) => paints++;
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
