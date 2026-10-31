@@ -136,11 +136,6 @@ class SileoController extends ChangeNotifier {
     if (_disposed) return;
     final index = _items.indexWhere((i) => i.id == id);
     if (index < 0 || _items[index].exiting) return;
-    _markExiting(index);
-    notifyListeners();
-  }
-
-  void _markExiting(int index) {
     final item = _items[index];
     final key = _key(item);
     _dismissTimers.remove(key)?.cancel();
@@ -150,6 +145,7 @@ class SileoController extends ChangeNotifier {
       _items.removeWhere((i) => _key(i) == key);
       notifyListeners();
     });
+    notifyListeners();
   }
 
   /// Removes toasts immediately; only those at [position] when given.
@@ -212,16 +208,6 @@ class SileoController extends ChangeNotifier {
       autoExpandDelay: autopilot ? _clamp(expand, duration) : null,
       autoCollapseDelay: autopilot ? _clamp(collapse, duration) : null,
     );
-
-    // The island holds one toast: others there leave as if dismissed.
-    if (item.position == SileoPosition.island) {
-      for (var i = 0; i < _items.length; i++) {
-        final o = _items[i];
-        if (o.id != id && !o.exiting && o.position == SileoPosition.island) {
-          _markExiting(i);
-        }
-      }
-    }
 
     final index = _items.indexWhere((i) => i.id == id);
     if (index < 0) {

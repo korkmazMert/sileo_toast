@@ -3,7 +3,6 @@ library;
 
 export 'src/sileo_controller.dart';
 export 'src/sileo_icons.dart';
-export 'src/sileo_island.dart';
 export 'src/sileo_options.dart';
 export 'src/sileo_position.dart';
 export 'src/sileo_spring.dart';

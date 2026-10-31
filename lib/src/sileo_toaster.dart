@@ -1,11 +1,8 @@
 import 'dart:math' as math;
-import 'dart:ui' show DisplayFeature;
 
-import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/widgets.dart';
 import 'package:sileo_toast/src/constants.dart';
 import 'package:sileo_toast/src/sileo_controller.dart';
-import 'package:sileo_toast/src/sileo_island.dart';
 import 'package:sileo_toast/src/sileo_options.dart';
 import 'package:sileo_toast/src/sileo_position.dart';
 import 'package:sileo_toast/src/sileo_theme.dart';
@@ -55,7 +52,6 @@ class SileoToaster extends StatefulWidget {
     this.options,
     this.theme,
     this.textStyle,
-    this.island = SileoIsland.detect,
     this.persistWhenAccessibleNavigation = true,
     super.key,
   });
@@ -82,11 +78,6 @@ class SileoToaster extends StatefulWidget {
   /// Base toast text style; pass the app theme's. Neutral when null.
   final TextStyle? textStyle;
 
-  /// Resolves the camera cutout rect for `SileoPosition.island`, once per
-  /// `MediaQuery` change. Return null for "no island": island toasts then
-  /// look like `topCenter` toasts. Defaults to [SileoIsland.detect].
-  final SileoIslandResolver island;
-
   /// With accessible navigation on, toasts never auto-dismiss.
   final bool persistWhenAccessibleNavigation;
 
@@ -100,7 +91,6 @@ class _SileoToasterState extends State<SileoToaster> {
   late _ScopeNotifier _scope;
   // Hovered or touch-expanded toast ids, oldest first.
   final Set<String> _engaged = {};
-  final _IslandCache _islandCache = _IslandCache();
 
   @override
   void initState() {
@@ -162,28 +152,6 @@ class _SileoToasterState extends State<SileoToaster> {
     }
   }
 
-  /// Only the aspects the island geometry reads, so a keyboard or text-scale
-  /// change does not rebuild the viewports. A custom resolver sees defaults
-  /// for every other field.
-  MediaQueryData? _islandMedia(BuildContext context) {
-    final size = MediaQuery.maybeSizeOf(context);
-    final padding = MediaQuery.maybePaddingOf(context);
-    final viewPadding = MediaQuery.maybeViewPaddingOf(context);
-    final features = MediaQuery.maybeDisplayFeaturesOf(context);
-    if (size == null ||
-        padding == null ||
-        viewPadding == null ||
-        features == null) {
-      return null;
-    }
-    return MediaQueryData(
-      size: size,
-      padding: padding,
-      viewPadding: viewPadding,
-      displayFeatures: features,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     _controller.suppressAutoDismiss =
@@ -202,10 +170,6 @@ class _SileoToasterState extends State<SileoToaster> {
       safe.top + offset.top + pad - ext,
       safe.right + offset.right + pad,
       safe.bottom + offset.bottom + pad - ext,
-    );
-
-    final islandInset = inset.copyWith(
-      top: math.max(0, safe.top + offset.top - ext),
     );
 
     return _SileoScope(
@@ -244,28 +208,13 @@ class _SileoToasterState extends State<SileoToaster> {
                           ),
                         )
                         .toDouble();
-                    final islandRect =
-                        items.any((i) => i.position == SileoPosition.island)
-                        ? _islandCache.resolve(
-                            widget.island,
-                            _islandMedia(context),
-                          )
-                        : null;
                     return Stack(
                       children: [
                         for (final p in SileoPosition.values)
                           if (items.any((i) => i.position == p))
                             _Viewport(
                               position: p,
-                              inset:
-                                  islandRect == null ||
-                                      p != SileoPosition.island
-                                  ? inset
-                                  : islandInset,
-                              island: p == SileoPosition.island
-                                  ? islandRect
-                                  : null,
-                              pillTop: safe.top + offset.top,
+                              inset: inset,
                               items: [
                                 for (final i in items)
                                   if (i.position == p) i,

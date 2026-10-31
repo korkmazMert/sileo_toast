@@ -40,7 +40,7 @@ Pass your own `SileoController` to show toasts without a `BuildContext`; the toa
 
 | Sileo | sileo_toast |
 |---|---|
-| `<Toaster position offset options theme />` | `SileoToaster(child, controller, position, offset, options, theme, textStyle, island, persistWhenAccessibleNavigation)` |
+| `<Toaster position offset options theme />` | `SileoToaster(child, controller, position, offset, options, theme, textStyle, persistWhenAccessibleNavigation)` |
 | `sileo.show / success / error / warning / info / action` | `SileoController.show / success / error / warning / info / action(SileoOptions)`, each returns the id |
 | `sileo.promise(promise, { loading, success, error, action })` | `controller.promise(future, SileoPromiseOptions(loading, success, error, action))`, returns the future |
 | `sileo.dismiss(id)` / `sileo.clear(position?)` | `controller.dismiss(id)` / `controller.clear([position])` |
@@ -59,24 +59,6 @@ Same-id toasts morph into each other; distinct ids stack (top newest first, bott
 `SileoOptions(size: SileoSize.large)` (or a toaster default through `options`) gives a full-width card capped at 520 dp: title row, description, an optional `trailing` thumbnail
 (sized and clipped to 64 dp by the package; pass a `ResizeImage`d widget, the package never decodes images) and up to two buttons. `secondaryButton` sits left of `button`
 in equal cells; long button labels wrap and grow the button. `trailing` is hidden from screen readers unless it is a `Semantics` widget (give it a label). Compact ignores `trailing` and `secondaryButton`.
-
-## Island
-
-`SileoPosition.island` grows a black toast out of the hardware camera cutout: a neck springs down from the cutout to a pill that starts at the island's width. The pill fill is always
-pure black (it must blend with the hardware), whatever `theme` or `fill`, and text uses the light pairing. Only one island toast is shown at a time; a new id replaces the old one.
-
-What a foreground app cannot do: the real Dynamic Island (Live Activities, the system morph) belongs to the OS. An app cannot draw into or above the system layer, so this is an
-imitation painted just below the status bar row with a black neck that overlaps the cutout. It never covers status bar items.
-
-Detection uses `MediaQuery` only, resolved once per `MediaQuery` change:
-
-| Platform | Rule |
-|---|---|
-| iOS | Portrait, and (`viewPadding.top`, screen size) matches a known device: 14 Pro / 15 / 16 family (59 pt, 393x852 and 430x932) and 16 Pro / 17 Pro family (62 pt, 402x874 and 440x956). iPhone Air (68 pt) is not measured yet and falls back. |
-| Android | A `DisplayFeatureType.cutout` that starts above the status bar, is centered within 1 dp and is at most 200 dp wide (a punch-hole camera). Corner holes and notches fall back. |
-
-Anything else (Display Zoom, iPad, landscape, notch phones, desktop, web) falls back: the toast looks like `topCenter` with the theme fill. Provide your own cutout rect with
-`SileoToaster(island: (MediaQueryData data) => Rect?)`; return null for "no island". `SileoIsland.detect` is the default and is public.
 
 ## Differences from Sileo
 

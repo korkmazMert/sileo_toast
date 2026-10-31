@@ -1,4 +1,4 @@
-// Spec: docs/plans/sileo-large-island.md §7.1, §7.2b, §7.4, §9 "Large",
+// Spec: the large-size plan §7.1, §7.2b, §7.4, §9 "Large",
 // "Compatibility", "Performance"; §10 edge cases. Expectations are
 // hand-computed from the plan, never read off the implementation.
 //

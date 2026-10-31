@@ -4,8 +4,6 @@ class _Viewport extends StatelessWidget {
   const new({
     required this.position,
     required this.inset,
-    required this.island,
-    required this.pillTop,
     required this.items,
     required this.width,
     required this.largeWidth,
@@ -19,8 +17,6 @@ class _Viewport extends StatelessWidget {
 
   final SileoPosition position;
   final EdgeInsets inset;
-  final Rect? island;
-  final double pillTop;
   final List<SileoItem> items;
   final double width;
   final double largeWidth;
@@ -30,12 +26,6 @@ class _Viewport extends StatelessWidget {
   final bool persist;
   final void Function(String id) onDismiss;
   final void Function(String id, {required bool engaged}) onEngaged;
-
-  // The island is always black, so text uses the light theme's pairing.
-  static final SileoFill _islandFill = SileoFill.resolve(
-    SileoThemeMode.light,
-    Brightness.light,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -68,14 +58,8 @@ class _Viewport extends StatelessWidget {
                   item: ordered[n],
                   width: width,
                   largeWidth: largeWidth,
-                  island: island,
-                  pillTop: pillTop,
-                  fill: island != null
-                      ? SileoConstants.islandFill
-                      : ordered[n].options.fill ?? fill.fill,
-                  descriptionColor: island != null
-                      ? _islandFill.description
-                      : fill.description,
+                  fill: ordered[n].options.fill ?? fill.fill,
+                  descriptionColor: fill.description,
                   textStyle: textStyle,
                   canExpand: ordered[n].id == activeId,
                   persistWhenAccessibleNavigation: persist,
@@ -88,33 +72,5 @@ class _Viewport extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-/// Memoizes the island resolver on what it can depend on, so it runs once per
-/// relevant `MediaQuery` change, not per frame or per toast.
-class _IslandCache {
-  SileoIslandResolver? _resolver;
-  Size? _size;
-  double? _top;
-  double? _viewTop;
-  List<DisplayFeature>? _features;
-  Rect? _rect;
-
-  Rect? resolve(SileoIslandResolver resolver, MediaQueryData? data) {
-    if (data == null) return null;
-    if (_resolver == resolver &&
-        _size == data.size &&
-        _top == data.padding.top &&
-        _viewTop == data.viewPadding.top &&
-        listEquals(_features, data.displayFeatures)) {
-      return _rect;
-    }
-    _resolver = resolver;
-    _size = data.size;
-    _top = data.padding.top;
-    _viewTop = data.viewPadding.top;
-    _features = data.displayFeatures;
-    return _rect = resolver(data);
   }
 }

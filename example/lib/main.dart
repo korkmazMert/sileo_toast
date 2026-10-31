@@ -68,16 +68,6 @@ class _Home extends StatelessWidget {
               ),
             ),
             _Button(
-              label: 'Island',
-              onTap: () => sileo.info(
-                SileoOptions(
-                  title: 'Now playing',
-                  description: const Text('Grown out of the camera cutout.'),
-                  position: SileoPosition.island,
-                ),
-              ),
-            ),
-            _Button(
               label: 'Error',
               onTap: () => sileo.error(SileoOptions(title: 'Failed')),
             ),

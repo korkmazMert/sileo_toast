@@ -313,44 +313,6 @@ abstract final class SileoConstants {
   /// Secondary button background alpha (white on the fill).
   static const double largeSecondaryAlpha = 0.12;
 
-  // Island.
-  /// Black of the island presentation, whatever the theme.
-  static const Color islandFill = Color(0xFF000000);
-
-  /// Inflation of the neck so it covers the cutout's anti-aliased edge.
-  static const double islandBleed = 1.5;
-
-  /// Max distance of an Android cutout center from the screen center.
-  static const double islandCenterTolerance = 1;
-
-  /// Widest Android cutout still treated as a camera island.
-  static const double islandMaxWidth = 200;
-
-  /// Tolerance when matching a table key against padding and size.
-  static const double islandKeyTolerance = 0.5;
-
-  /// iOS Dynamic Island rows: (viewPadding.top, screen width, screen height,
-  /// island width, island height, island top), all logical points.
-  ///
-  /// Screen sizes are Apple's published logical resolutions. The 59 pt rows
-  /// use the MIT-licensed `sole_toast` geometry (126 x 37 at top 11.6). The
-  /// 62 pt rows were measured from iOS 26 simulator screenshots (iPhone 17
-  /// Pro and 17 Pro Max: 126 x 37 centered, top 14.0); the 16 Pro and 16 Pro
-  /// Max share those screen sizes. iPhone Air (68 pt) is not measured, so it
-  /// falls back to a normal top toast; hosts can supply their own rect through
-  /// `SileoToaster.island`.
-  static const List<(double, double, double, double, double, double)>
-  islandTable = [
-    // 14 Pro, 15, 15 Pro, 16.
-    (59, 393, 852, 126, 37, 11.6),
-    // 14 Pro Max, 15 Plus, 15 Pro Max, 16 Plus.
-    (59, 430, 932, 126, 37, 11.6),
-    // 16 Pro, 17, 17 Pro (measured on the 17 Pro simulator).
-    (62, 402, 874, 126, 37, 14),
-    // 16 Pro Max, 17 Pro Max (measured on the 17 Pro Max simulator).
-    (62, 440, 956, 126, 37, 14),
-  ];
-
   // Text.
   /// Toast text style when the toaster supplies none.
   static const TextStyle neutralText = TextStyle(
