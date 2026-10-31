@@ -72,7 +72,7 @@ Detection uses `MediaQuery` only, resolved once per `MediaQuery` change:
 
 | Platform | Rule |
 |---|---|
-| iOS | Portrait, and (`viewPadding.top`, screen size) matches a known device: 14 Pro / 15 / 16 family (59 pt, 393x852 and 430x932). 16 Pro, 17 and Air have a different top inset and fall back until their island size is measured. |
+| iOS | Portrait, and (`viewPadding.top`, screen size) matches a known device: 14 Pro / 15 / 16 family (59 pt, 393x852 and 430x932) and 16 Pro / 17 Pro family (62 pt, 402x874 and 440x956). iPhone Air (68 pt) is not measured yet and falls back. |
 | Android | A `DisplayFeatureType.cutout` that starts above the status bar, is centered within 1 dp and is at most 200 dp wide (a punch-hole camera). Corner holes and notches fall back. |
 
 Anything else (Display Zoom, iPad, landscape, notch phones, desktop, web) falls back: the toast looks like `topCenter` with the theme fill. Provide your own cutout rect with

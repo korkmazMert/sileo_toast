@@ -29,6 +29,8 @@ void main() {
     const rows = <(String, double, double, double)>[
       ('14 Pro / 15 / 16', 59, 393, 852),
       ('Pro Max / Plus', 59, 430, 932),
+      ('16 Pro / 17 Pro', 62, 402, 874),
+      ('16 Pro Max / 17 Pro Max', 62, 440, 956),
     ];
     for (final (name, top, w, h) in rows) {
       test('row $name', () {
@@ -47,9 +49,18 @@ void main() {
       expect(r, const Rect.fromLTWH(133.5, 11.6, 126, 37));
     });
 
-    test('unverified 62/68 pt models fall back to null', () {
-      expect(SileoIsland.detect(_ios(62, 402, 874)), isNull);
-      expect(SileoIsland.detect(_ios(62, 440, 956)), isNull);
+    test('62 pt rows are 126x37 at 14, centered', () {
+      expect(
+        SileoIsland.detect(_ios(62, 402, 874)),
+        const Rect.fromLTWH(138, 14, 126, 37),
+      );
+      expect(
+        SileoIsland.detect(_ios(62, 440, 956)),
+        const Rect.fromLTWH(157, 14, 126, 37),
+      );
+    });
+
+    test('unmeasured iPhone Air (68 pt) falls back to null', () {
       expect(SileoIsland.detect(_ios(68, 420, 912)), isNull);
     });
 

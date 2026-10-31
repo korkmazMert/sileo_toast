@@ -332,18 +332,23 @@ abstract final class SileoConstants {
   /// iOS Dynamic Island rows: (viewPadding.top, screen width, screen height,
   /// island width, island height, island top), all logical points.
   ///
-  /// Screen sizes are Apple's published logical resolutions. Island geometry
-  /// (126 x 37 at top 11.6) is from the MIT-licensed `sole_toast` package.
-  /// Only rows backed by that geometry are listed. 16 Pro, 17 and Air have a
-  /// different top inset and no verified island size in points, so they fall
-  /// back to a normal top toast until a row is measured on a device; hosts can
-  /// supply their own rect through `SileoToaster.island`.
+  /// Screen sizes are Apple's published logical resolutions. The 59 pt rows
+  /// use the MIT-licensed `sole_toast` geometry (126 x 37 at top 11.6). The
+  /// 62 pt rows were measured from iOS 26 simulator screenshots (iPhone 17
+  /// Pro and 17 Pro Max: 126 x 37 centered, top 14.0); the 16 Pro and 16 Pro
+  /// Max share those screen sizes. iPhone Air (68 pt) is not measured, so it
+  /// falls back to a normal top toast; hosts can supply their own rect through
+  /// `SileoToaster.island`.
   static const List<(double, double, double, double, double, double)>
   islandTable = [
     // 14 Pro, 15, 15 Pro, 16.
     (59, 393, 852, 126, 37, 11.6),
     // 14 Pro Max, 15 Plus, 15 Pro Max, 16 Plus.
     (59, 430, 932, 126, 37, 11.6),
+    // 16 Pro, 17, 17 Pro (measured on the 17 Pro simulator).
+    (62, 402, 874, 126, 37, 14),
+    // 16 Pro Max, 17 Pro Max (measured on the 17 Pro Max simulator).
+    (62, 440, 956, 126, 37, 14),
   ];
 
   // Text.
