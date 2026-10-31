@@ -75,6 +75,10 @@ in equal cells; long button labels wrap and grow the button. `trailing` is hidde
 `InkWell`, `Tooltip` and other Material widgets inside a `description` will not work. Pass `textStyle` from the app theme: without it
 the toast uses a neutral style, and text would otherwise inherit `MaterialApp`'s error style. Decorations are always removed.
 
+## Example
+
+[example/](example/) is a playground app with a control for every option: `cd example && fvm flutter run`. See its [README](example/README.md).
+
 ## License
 
 MIT. Original Sileo design and code by Aaryan Sharma; Flutter port by Mert Akif Korkmaz. See [LICENSE](LICENSE).

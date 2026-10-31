@@ -1,5 +1,5 @@
 name: sileo_toast_example
-description: Minimal demo of sileo_toast.
+description: Playground for every option of sileo_toast.
 publish_to: none
 version: 0.1.0
 
@@ -10,5 +10,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  material_ui: ^1.8.0
   sileo_toast:
     path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^11.0.0
+
+flutter:
+  uses-material-design: true
