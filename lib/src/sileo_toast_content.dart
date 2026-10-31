@@ -32,17 +32,15 @@ class _ContentBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (description != null)
-            ExcludeSemantics(
-              child: DefaultTextStyle.merge(
-                style: TextStyle(
-                  fontSize: SileoConstants.descriptionFontSize,
-                  height:
-                      SileoConstants.descriptionLineHeight /
-                      SileoConstants.descriptionFontSize,
-                  color: descriptionColor,
-                ).merge(view.styles?.description),
-                child: description,
-              ),
+            DefaultTextStyle.merge(
+              style: TextStyle(
+                fontSize: SileoConstants.descriptionFontSize,
+                height:
+                    SileoConstants.descriptionLineHeight /
+                    SileoConstants.descriptionFontSize,
+                color: descriptionColor,
+              ).merge(view.styles?.description),
+              child: description,
             ),
           if (button != null)
             Padding(
@@ -76,6 +74,21 @@ class _ActionButton extends StatefulWidget {
 class _ActionButtonState extends State<_ActionButton> {
   bool _pressed = false;
   bool _hovered = false;
+  bool _focused = false;
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent && _activators.contains(event.logicalKey)) {
+      widget.button.onPressed();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  static final Set<LogicalKeyboardKey> _activators = {
+    LogicalKeyboardKey.enter,
+    LogicalKeyboardKey.numpadEnter,
+    LogicalKeyboardKey.space,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -96,44 +109,55 @@ class _ActionButtonState extends State<_ActionButton> {
       label: widget.button.title,
       onTap: widget.button.onPressed,
       excludeSemantics: true,
-      child: MouseRegion(
-        hitTestBehavior: HitTestBehavior.deferToChild,
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          excludeFromSemantics: true,
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapUp: (_) => setState(() => _pressed = false),
-          onTapCancel: () => setState(() => _pressed = false),
-          onTap: widget.button.onPressed,
-          // Wins the arena over the toast's swipe, which ignores the button.
-          onVerticalDragStart: (_) {},
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: SileoConstants.minTapTarget,
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minHeight: SileoConstants.buttonHeight,
-                ),
-                child: AnimatedContainer(
-                  duration: fade,
-                  decoration: ShapeDecoration(
-                    shape: const StadiumBorder(),
-                    color: background,
+      child: Focus(
+        onKeyEvent: _onKey,
+        onFocusChange: (focused) => setState(() => _focused = focused),
+        child: MouseRegion(
+          hitTestBehavior: HitTestBehavior.deferToChild,
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            excludeFromSemantics: true,
+            onTapDown: (_) => setState(() => _pressed = true),
+            onTapUp: (_) => setState(() => _pressed = false),
+            onTapCancel: () => setState(() => _pressed = false),
+            onTap: widget.button.onPressed,
+            // Wins the arena over the toast's swipe, which ignores the button.
+            onVerticalDragStart: (_) {},
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: SileoConstants.minTapTarget,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: SileoConstants.buttonHeight,
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: SileoConstants.buttonHPadding,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    widget.button.title,
-                    style: TextStyle(
-                      fontSize: SileoConstants.buttonFontSize,
-                      fontWeight: SileoConstants.buttonWeight,
-                      color: styles?.buttonForeground ?? tone,
+                  child: AnimatedContainer(
+                    duration: fade,
+                    decoration: ShapeDecoration(
+                      shape: StadiumBorder(
+                        side: _focused
+                            ? BorderSide(
+                                color: tone,
+                                width: SileoConstants.focusRingWidth,
+                              )
+                            : BorderSide.none,
+                      ),
+                      color: background,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SileoConstants.buttonHPadding,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      widget.button.title,
+                      style: TextStyle(
+                        fontSize: SileoConstants.buttonFontSize,
+                        fontWeight: SileoConstants.buttonWeight,
+                        color: styles?.buttonForeground ?? tone,
+                      ),
                     ),
                   ),
                 ),

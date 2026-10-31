@@ -159,6 +159,13 @@ class _ToastMotion {
   late final Animation<double> scale = presence.drive(
     Tween<double>(begin: SileoConstants.entryScale, end: 1),
   );
+  late final Listenable repaint = Listenable.merge([
+    pillX.controller,
+    pillWidth.controller,
+    bodyHeight.controller,
+    bodyOpacity.controller,
+    toastHeight.controller,
+  ]);
   late final Listenable headerAnimation = Listenable.merge([
     headerLeft,
     headerWidth,

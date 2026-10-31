@@ -101,8 +101,10 @@ class _SileoToasterState extends State<SileoToaster> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       final old = _controller;
+      final oldScope = _scope;
       final wasOwned = _owned;
       _adopt();
+      oldScope.dispose();
       _engaged.clear();
       if (wasOwned) old.dispose();
     } else {
@@ -150,6 +152,9 @@ class _SileoToasterState extends State<SileoToaster> {
 
   @override
   Widget build(BuildContext context) {
+    _controller.suppressAutoDismiss =
+        widget.persistWhenAccessibleNavigation &&
+        (MediaQuery.maybeAccessibleNavigationOf(context) ?? false);
     final fill = SileoFill.resolve(
       widget.theme,
       MediaQuery.maybePlatformBrightnessOf(context) ?? Brightness.light,

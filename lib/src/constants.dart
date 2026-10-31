@@ -212,6 +212,9 @@ abstract final class SileoConstants {
   /// Button label weight.
   static const FontWeight buttonWeight = FontWeight.w500;
 
+  /// Keyboard focus ring width on the action button.
+  static const double focusRingWidth = 2;
+
   /// Button background color transition.
   static const Duration buttonFade = Duration(milliseconds: 150);
 

@@ -65,6 +65,7 @@ class _HeaderLayerState extends State<_HeaderLayer>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c;
   late final Animation<double> _opacity;
+  final GlobalKey _rowKey = GlobalKey();
 
   bool get _exit => widget.transition == _Transition.exit;
 
@@ -131,10 +132,13 @@ class _HeaderLayerState extends State<_HeaderLayer>
         child: onSize == null ? row : _SizeReporter(onSize: onSize, child: row),
         builder: (context, child) {
           final sigma = _sigma;
+          // Keyed so the badge (spinner) keeps its state when the filter
+          // wrapper comes and goes.
+          final row = KeyedSubtree(key: _rowKey, child: child!);
+          if (sigma <= 0) return row;
           return ImageFiltered(
-            enabled: sigma > 0,
             imageFilter: ui.ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-            child: child,
+            child: row,
           );
         },
       ),
@@ -233,9 +237,9 @@ class _SpinnerState extends State<_Spinner>
   }
 
   @override
-  Widget build(BuildContext context) => RotationTransition(
-    turns: _c,
-    child: RepaintBoundary(
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: RotationTransition(
+      turns: _c,
       child: SizedBox.square(
         dimension: SileoConstants.badgeIconSize,
         child: CustomPaint(

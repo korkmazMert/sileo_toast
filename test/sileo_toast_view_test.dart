@@ -8,9 +8,12 @@
 //   toast is max(40 * 2.25 = 90, 40 + 52 = 92) = 92 tall (body 52);
 // * a 1 dp description -> content 33 -> max(90, 73) = 90 (body 50);
 // * the shape sits 4 dp inside the 48 dp gesture box.
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sileo_toast/sileo_toast.dart';
 import 'package:sileo_toast/src/sileo_shape_painter.dart';
@@ -771,22 +774,38 @@ void main() {
       await end(tester);
     });
 
-    // DISCREPANCY (reported): the controller keeps its 6 s dismiss timer and
-    // the toaster/view never cancel it for accessible navigation, so the
-    // toast still auto-dismisses.
-    testWidgets(
-      'accessible navigation: no auto-dismiss',
-      (tester) async {
-        await _host(tester, c, accessible: true);
-        c.show(_desc());
-        await _wait(tester, 7000);
-        expect(c.items, hasLength(1));
-        expect(c.items.single.exiting, isFalse);
-        await end(tester);
-      },
-      // Spec/impl mismatch: auto-dismiss is not suppressed (see report).
-      skip: true,
-    );
+    testWidgets('accessible navigation: no auto-dismiss', (tester) async {
+      await _host(tester, c, accessible: true);
+      c.show(_desc());
+      await _wait(tester, 7000);
+      expect(c.items, hasLength(1));
+      expect(c.items.single.exiting, isFalse);
+      await end(tester);
+    });
+
+    testWidgets('persistWhenAccessibleNavigation false: still dismisses', (
+      tester,
+    ) async {
+      await _host(tester, c, accessible: true, persistA11y: false);
+      c.show(_desc());
+      await _wait(tester, 7000);
+      expect(c.items, isEmpty);
+      await end(tester);
+    });
+
+    // Spec §10: a screen reader turning on mid-toast creates no new timers,
+    // the running one still dismisses.
+    testWidgets('accessible navigation turning on mid-toast keeps the timer', (
+      tester,
+    ) async {
+      await _host(tester, c);
+      c.show(_desc());
+      await _wait(tester, 3000);
+      await _host(tester, c, accessible: true);
+      await _wait(tester, 4000);
+      expect(c.items, isEmpty);
+      await end(tester);
+    });
 
     // Mutation: springs still animate under reduce motion.
     testWidgets('reduce motion: no animation in flight after one pump', (
@@ -820,6 +839,136 @@ void main() {
       await _wait(tester, 4000);
       expect(tester.binding.transientCallbackCount, 0);
       expect(_body(tester), lessThan(0.5));
+      await end(tester);
+    });
+  });
+
+  group('header blur', () {
+    // Plan AC: ImageFiltered only while a header transition runs.
+    testWidgets('steady state has no ImageFiltered; a morph adds it', (
+      tester,
+    ) async {
+      await _host(tester, c);
+      c.show(_desc(autopilot: SileoAutopilot.off));
+      await _wait(tester, 1500);
+      expect(find.byType(ImageFiltered), findsNothing);
+      c.show(_desc(title: 'Other', autopilot: SileoAutopilot.off));
+      await _wait(tester, 100);
+      expect(find.byType(ImageFiltered), findsWidgets);
+      await _wait(tester, 1500);
+      expect(find.byType(ImageFiltered), findsNothing);
+      await end(tester);
+    });
+  });
+
+  group('content semantics and keyboard', () {
+    const column = Column(children: [Text('First line'), Text('Second line')]);
+
+    testWidgets('a non-Text description is readable only when open', (
+      tester,
+    ) async {
+      handle = tester.ensureSemantics();
+      await _host(tester, c);
+      c.show(_desc(description: column, autopilot: SileoAutopilot.off));
+      await _wait(tester, 1000);
+      expect(find.bySemanticsLabel(RegExp('Second line')), findsNothing);
+      tester.semantics.performAction(
+        find.semantics.byLabel(RegExp('^Saved')),
+        SemanticsAction.tap,
+      );
+      await _wait(tester, 1500);
+      expect(find.bySemanticsLabel(RegExp('First line')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('Second line')), findsOneWidget);
+      await end(tester);
+    });
+
+    testWidgets('expanded flag follows open, only with content', (
+      tester,
+    ) async {
+      handle = tester.ensureSemantics();
+      await _host(tester, c);
+      c.show(_desc(autopilot: SileoAutopilot.off));
+      await _wait(tester, 1000);
+      Tristate expanded() => tester
+          .getSemantics(find.bySemanticsLabel(RegExp('^Saved')))
+          .getSemanticsData()
+          .flagsCollection
+          .isExpanded;
+      expect(expanded(), Tristate.isFalse);
+      tester.semantics.performAction(
+        find.semantics.byLabel(RegExp('^Saved')),
+        SemanticsAction.tap,
+      );
+      await _wait(tester, 1500);
+      expect(expanded(), Tristate.isTrue);
+      c.show(const SileoOptions(title: 'Plain'));
+      await _wait(tester, 1500);
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('Plain'))
+            .getSemanticsData()
+            .flagsCollection
+            .isExpanded,
+        Tristate.none,
+      );
+      await end(tester);
+    });
+
+    Future<int Function()> openButton(WidgetTester tester) async {
+      var pressed = 0;
+      await _host(tester, c);
+      c.show(
+        _desc(
+          button: SileoButton(title: 'Undo', onPressed: () => pressed++),
+        ),
+      );
+      await _wait(tester, 1500);
+      Focus.of(tester.element(find.text('Undo'))).requestFocus();
+      await tester.pump();
+      return () => pressed;
+    }
+
+    for (final key in [
+      LogicalKeyboardKey.enter,
+      LogicalKeyboardKey.space,
+      LogicalKeyboardKey.numpadEnter,
+    ]) {
+      testWidgets('focused button fires on ${key.keyLabel}', (tester) async {
+        final pressed = await openButton(tester);
+        await tester.sendKeyEvent(key);
+        expect(pressed(), 1);
+        await end(tester);
+      });
+    }
+
+    testWidgets('other keys do not fire the button', (tester) async {
+      final pressed = await openButton(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyA);
+      expect(pressed(), 0);
+      await end(tester);
+    });
+
+    testWidgets('focus shows a tone ring, blur removes it', (tester) async {
+      await openButton(tester);
+      double ring() =>
+          ((tester
+                              .widget<AnimatedContainer>(
+                                find.ancestor(
+                                  of: find.text('Undo'),
+                                  matching: find.byType(AnimatedContainer),
+                                ),
+                              )
+                              .decoration!
+                          as ShapeDecoration)
+                      .shape
+                  as StadiumBorder)
+              .side
+              .width;
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(ring(), 2);
+      FocusManager.instance.primaryFocus!.unfocus();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(ring(), 0);
       await end(tester);
     });
   });

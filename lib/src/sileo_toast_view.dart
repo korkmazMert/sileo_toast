@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sileo_toast/src/constants.dart';
 import 'package:sileo_toast/src/sileo_controller.dart';
@@ -460,6 +461,7 @@ class _SileoToastViewState extends State<SileoToastView>
             bodyHeight: _m.bodyHeight.controller,
             bodyOpacity: _m.bodyOpacity.controller,
             toastHeight: _m.toastHeight.controller,
+            repaint: _m.repaint,
           ),
           Positioned.fill(
             child: Padding(
@@ -507,35 +509,38 @@ class _SileoToastViewState extends State<SileoToastView>
     return DefaultTextStyle(
       style: style,
       textAlign: TextAlign.left,
-      child: _ToastEntry(
-        presence: _m.presence,
-        scale: _m.scale,
-        drag: _m.drag.controller,
-        isTop: isTop,
-        child: IgnorePointer(
-          ignoring: exiting,
-          child: Semantics(
-            container: true,
-            liveRegion: true,
-            label: _semanticsLabel,
-            onTap: _hasContent && !_isLoading && !exiting ? _toggle : null,
-            onDismiss: exiting ? null : widget.onDismiss,
-            child: MouseRegion(
-              hitTestBehavior: HitTestBehavior.deferToChild,
-              onEnter: (_) => _hover(entered: true),
-              onExit: (_) => _hover(entered: false),
-              child: GestureDetector(
-                excludeFromSemantics: true,
-                onTap: _toggle,
-                onVerticalDragDown: canDrag ? _onDragDown : null,
-                onVerticalDragUpdate: canDrag ? _onDragUpdate : null,
-                onVerticalDragEnd: canDrag
-                    ? (_) => _endDrag(released: true)
-                    : null,
-                onVerticalDragCancel: canDrag
-                    ? () => _endDrag(released: false)
-                    : null,
-                child: box,
+      child: RepaintBoundary(
+        child: _ToastEntry(
+          presence: _m.presence,
+          scale: _m.scale,
+          drag: _m.drag.controller,
+          isTop: isTop,
+          child: IgnorePointer(
+            ignoring: exiting,
+            child: Semantics(
+              container: true,
+              liveRegion: true,
+              expanded: _hasContent ? _open : null,
+              label: _semanticsLabel,
+              onTap: _hasContent && !_isLoading && !exiting ? _toggle : null,
+              onDismiss: exiting ? null : widget.onDismiss,
+              child: MouseRegion(
+                hitTestBehavior: HitTestBehavior.deferToChild,
+                onEnter: (_) => _hover(entered: true),
+                onExit: (_) => _hover(entered: false),
+                child: GestureDetector(
+                  excludeFromSemantics: true,
+                  onTap: _toggle,
+                  onVerticalDragDown: canDrag ? _onDragDown : null,
+                  onVerticalDragUpdate: canDrag ? _onDragUpdate : null,
+                  onVerticalDragEnd: canDrag
+                      ? (_) => _endDrag(released: true)
+                      : null,
+                  onVerticalDragCancel: canDrag
+                      ? () => _endDrag(released: false)
+                      : null,
+                  child: box,
+                ),
               ),
             ),
           ),

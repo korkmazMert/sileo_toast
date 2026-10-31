@@ -64,6 +64,10 @@ class SileoController extends ChangeNotifier {
   /// Options merged under every toast; the toaster writes this.
   SileoOptions? defaultOptions;
 
+  /// While true no auto-dismiss timer is scheduled (accessible navigation);
+  /// timers already running are left alone. The toaster writes this.
+  bool suppressAutoDismiss = false;
+
   final List<SileoItem> _items = [];
   // Keyed `id:instanceId`, as in Sileo. Only these stop on [pause].
   final Map<String, Timer> _dismissTimers = {};
@@ -226,7 +230,7 @@ class SileoController extends ChangeNotifier {
 
   void _scheduleDismiss(SileoItem item) {
     final duration = _autoDuration(item.options);
-    if (_paused || duration == null) return;
+    if (_paused || suppressAutoDismiss || duration == null) return;
     final key = _key(item);
     _dismissTimers[key]?.cancel();
     _dismissTimers[key] = Timer(duration, () {

@@ -77,6 +77,7 @@ class _ToastShape extends StatelessWidget {
     required this.bodyHeight,
     required this.bodyOpacity,
     required this.toastHeight,
+    required this.repaint,
   });
 
   final Color fill;
@@ -89,6 +90,7 @@ class _ToastShape extends StatelessWidget {
   final Animation<double> bodyHeight;
   final Animation<double> bodyOpacity;
   final Animation<double> toastHeight;
+  final Listenable repaint;
 
   @override
   Widget build(BuildContext context) => Positioned.fill(
@@ -104,6 +106,7 @@ class _ToastShape extends StatelessWidget {
           bodyHeight: bodyHeight,
           bodyOpacity: bodyOpacity,
           toastHeight: toastHeight,
+          repaint: repaint,
           flipped: flipped,
           verticalInset: SileoConstants.tapExtension,
         ),

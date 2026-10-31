@@ -11,7 +11,8 @@ double _unless(bool flush, double v) => flush ? 0 : v;
 /// with concave fillets where the pill sides meet the body top edge.
 ///
 /// Analytic, so there is no blur, no `saveLayer` and no `ImageFilter`. The
-/// animated values repaint it directly through [Listenable.merge].
+/// animated values repaint it directly through [Listenable.merge], or
+/// through a prebuilt `repaint` the owner builds once.
 class SileoShapePainter extends CustomPainter {
   /// Creates a painter. Bottom toasts pass [flipped] so the body grows up.
   new({
@@ -26,14 +27,17 @@ class SileoShapePainter extends CustomPainter {
     required this.toastHeight,
     this.flipped = false,
     this.verticalInset = 0,
+    Listenable? repaint,
   }) : super(
-         repaint: Listenable.merge([
-           pillX,
-           pillWidth,
-           bodyHeight,
-           bodyOpacity,
-           toastHeight,
-         ]),
+         repaint:
+             repaint ??
+             Listenable.merge([
+               pillX,
+               pillWidth,
+               bodyHeight,
+               bodyOpacity,
+               toastHeight,
+             ]),
        );
 
   /// Toast fill.
