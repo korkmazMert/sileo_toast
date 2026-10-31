@@ -44,6 +44,15 @@ class SileoButton {
   final VoidCallback onPressed;
 }
 
+/// Toast scale.
+enum SileoSize {
+  /// The classic small pill.
+  compact,
+
+  /// Bigger pill that opens into a full-width card.
+  large,
+}
+
 /// Per-part style overrides; merged per field.
 @immutable
 class SileoStyles {
@@ -110,6 +119,9 @@ class SileoOptions {
     this.autopilot = const SileoAutopilot(),
     this.button,
     this.id,
+    this.size,
+    this.trailing,
+    this.secondaryButton,
   });
 
   /// Wraps a plain string as a description.
@@ -154,6 +166,15 @@ class SileoOptions {
   /// Toast id; toasts with the same id morph into each other.
   final String? id;
 
+  /// Scale; the toaster default, then compact, when null.
+  final SileoSize? size;
+
+  /// Large-size thumbnail, clipped to a square; compact ignores it.
+  final Widget? trailing;
+
+  /// Large-size secondary action (left of [button]); compact ignores it.
+  final SileoButton? secondaryButton;
+
   /// Copy with fields replaced; null arguments keep the current value.
   SileoOptions copyWith({
     String? title,
@@ -169,6 +190,9 @@ class SileoOptions {
     SileoAutopilot? autopilot,
     SileoButton? button,
     String? id,
+    SileoSize? size,
+    Widget? trailing,
+    SileoButton? secondaryButton,
   }) => SileoOptions(
     title: title ?? this.title,
     description: description ?? this.description,
@@ -183,6 +207,9 @@ class SileoOptions {
     autopilot: autopilot ?? this.autopilot,
     button: button ?? this.button,
     id: id ?? this.id,
+    size: size ?? this.size,
+    trailing: trailing ?? this.trailing,
+    secondaryButton: secondaryButton ?? this.secondaryButton,
   );
 
   /// Fields set here win; the rest come from [defaults]. Styles merge per
@@ -207,6 +234,9 @@ class SileoOptions {
           : autopilot,
       button: button ?? defaults.button,
       id: id ?? defaults.id,
+      size: size ?? defaults.size,
+      trailing: trailing ?? defaults.trailing,
+      secondaryButton: secondaryButton ?? defaults.secondaryButton,
     );
   }
 }

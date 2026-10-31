@@ -270,6 +270,82 @@ abstract final class SileoConstants {
   /// Description base color on the `dark` fill.
   static const Color darkDescription = Color(0xFF000000);
 
+  // Large size.
+  /// Closed large pill and header height floor.
+  static const double largeHeight = 56;
+
+  /// Large badge diameter.
+  static const double largeBadgeSize = 32;
+
+  /// Large badge icon size.
+  static const double largeIconSize = 20;
+
+  /// Large title font size.
+  static const double largeTitleFontSize = 17;
+
+  /// Large title line height in logical pixels.
+  static const double largeTitleLineHeight = 22;
+
+  /// Maximum width of an open large toast (tablets, desktop).
+  static const double largeMaxWidth = 520;
+
+  /// Padding of the large body.
+  static const double largeBodyPadding = 16;
+
+  /// Gap between the description and trailing, and between buttons.
+  static const double largeButtonGap = 12;
+
+  /// Large button height (its own hit box).
+  static const double largeButtonHeight = 48;
+
+  /// Large button label font size.
+  static const double largeButtonFontSize = 15;
+
+  /// Large trailing thumbnail side.
+  static const double largeTrailingSize = 64;
+
+  /// Large trailing thumbnail corner radius.
+  static const double largeTrailingRadius = 12;
+
+  /// Default corner roundness of the large body.
+  static const double largeRoundness = 24;
+
+  /// Secondary button background alpha (white on the fill).
+  static const double largeSecondaryAlpha = 0.12;
+
+  // Island.
+  /// Black of the island presentation, whatever the theme.
+  static const Color islandFill = Color(0xFF000000);
+
+  /// Inflation of the neck so it covers the cutout's anti-aliased edge.
+  static const double islandBleed = 1.5;
+
+  /// Max distance of an Android cutout center from the screen center.
+  static const double islandCenterTolerance = 1;
+
+  /// Widest Android cutout still treated as a camera island.
+  static const double islandMaxWidth = 200;
+
+  /// Tolerance when matching a table key against padding and size.
+  static const double islandKeyTolerance = 0.5;
+
+  /// iOS Dynamic Island rows: (viewPadding.top, screen width, screen height,
+  /// island width, island height, island top), all logical points.
+  ///
+  /// Screen sizes are Apple's published logical resolutions. Island geometry
+  /// (126 x 37 at top 11.6) is from the MIT-licensed `sole_toast` package.
+  /// Only rows backed by that geometry are listed. 16 Pro, 17 and Air have a
+  /// different top inset and no verified island size in points, so they fall
+  /// back to a normal top toast until a row is measured on a device; hosts can
+  /// supply their own rect through `SileoToaster.island`.
+  static const List<(double, double, double, double, double, double)>
+  islandTable = [
+    // 14 Pro, 15, 15 Pro, 16.
+    (59, 393, 852, 126, 37, 11.6),
+    // 14 Pro Max, 15 Plus, 15 Pro Max, 16 Plus.
+    (59, 430, 932, 126, 37, 11.6),
+  ];
+
   // Text.
   /// Toast text style when the toaster supplies none.
   static const TextStyle neutralText = TextStyle(

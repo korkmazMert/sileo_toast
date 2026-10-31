@@ -18,18 +18,21 @@ enum SileoPosition {
   bottomCenter,
 
   /// Bottom, right edge.
-  bottomRight;
+  bottomRight,
+
+  /// Top, centered, grown out of the hardware camera cutout.
+  island;
 
   /// Whether the viewport hugs the top edge.
   bool get isTop => switch (this) {
-    topLeft || topCenter || topRight => true,
+    topLeft || topCenter || topRight || island => true,
     bottomLeft || bottomCenter || bottomRight => false,
   };
 
   /// Where the pill sits inside the toast box.
   Alignment get pillAlign => switch (this) {
     topLeft => Alignment.topLeft,
-    topCenter => Alignment.topCenter,
+    topCenter || island => Alignment.topCenter,
     topRight => Alignment.topRight,
     bottomLeft => Alignment.bottomLeft,
     bottomCenter => Alignment.bottomCenter,
