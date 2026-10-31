@@ -59,6 +59,22 @@ SileoShapePainter _painter({
   verticalInset: inset,
 );
 
+SileoShapePainter _neckPainter({
+  Rect? neck = const Rect.fromLTRB(135, -50, 215, -13),
+}) => SileoShapePainter(
+  fill: const Color(0xFF000000),
+  roundness: 16,
+  width: 350,
+  headerHeight: 40,
+  pillX: const AlwaysStoppedAnimation(100),
+  pillWidth: const AlwaysStoppedAnimation(150),
+  bodyHeight: const AlwaysStoppedAnimation(100),
+  bodyOpacity: const AlwaysStoppedAnimation(1),
+  toastHeight: const AlwaysStoppedAnimation(140),
+  neck: neck,
+  neckHeight: const AlwaysStoppedAnimation(50),
+);
+
 void main() {
   group('body under 0.5 dp -> pill rrect only', () {
     // Mutation: epsilon comparison inverted/removed -> body bleeds in.
@@ -251,6 +267,148 @@ void main() {
       final top = _painter();
       expect(top.hitTest(const Offset(20, 130)), isTrue);
       expect(top.hitTest(const Offset(20, 20)), isFalse);
+    });
+  });
+
+  group('island neck (spec §7.3 Shape)', () {
+    // Frame: pill top at y 0, neck above it (negative y). Neck rect 135..215
+    // wide, 37 tall (capsule radius 18.5), full height 50 above the pill.
+    // Pill 100..250, roundness 16 -> fillet 8. Left gap 35, right gap 35.
+    const island = Rect.fromLTRB(135, -50, 215, -13);
+    Path neckPath({
+      Rect? neck = island,
+      double nh = 50,
+      double pillX = 100,
+      double pillWidth = 150,
+      double body = 100,
+    }) => SileoShapePainter.buildPath(
+      width: 350,
+      pillX: pillX,
+      pillWidth: pillWidth,
+      headerHeight: 40,
+      bodyHeight: body,
+      roundness: 16,
+      neck: neck,
+      neckHeight: nh,
+    );
+
+    // Golden lengths/bounds captured from the pre-neck implementation.
+    // Mutation: the shared join changes a single op for neck == null.
+    test('null neck gives the pre-neck path exactly', () {
+      double len(Path p) => p.computeMetrics().fold(0, (a, e) => a + e.length);
+      const gold = <List<double>, double>{
+        [100, 150, 100, 16]: 930.7955,
+        [100, 150, 0.4, 16]: 351.8831,
+        [0, 150, 100, 16]: 941.3392,
+        [200, 150, 100, 16]: 941.3392,
+        [0, 350, 100, 16]: 951.8831,
+        [4, 150, 10, 16]: 774.6792,
+        [100, 150, 100, 0]: 980.0,
+      };
+      gold.forEach((c, want) {
+        final p = SileoShapePainter.buildPath(
+          width: 350,
+          pillX: c[0],
+          pillWidth: c[1],
+          headerHeight: 40,
+          bodyHeight: c[2],
+          roundness: c[3],
+        );
+        expect(len(p), closeTo(want, 1e-3), reason: '$c');
+      });
+    });
+
+    test('zero neck height equals no neck', () {
+      expect(neckPath(nh: 0).getBounds(), neckPath(neck: null).getBounds());
+    });
+
+    test('neck spans island top to the pill and the pill stays', () {
+      final p = neckPath();
+      expect(p.getBounds(), const Rect.fromLTRB(0, -50, 350, 140));
+      expect(p.contains(const Offset(175, -30)), isTrue);
+      expect(p.contains(const Offset(175, -49)), isTrue);
+      expect(p.contains(const Offset(175, -52)), isFalse);
+      expect(p.contains(const Offset(175, 20)), isTrue);
+      // Beside the neck, above the pill: empty.
+      expect(p.contains(const Offset(120, -30)), isFalse);
+      expect(p.contains(const Offset(230, -30)), isFalse);
+      // Capsule top corner is rounded.
+      expect(p.contains(const Offset(136, -49)), isFalse);
+    });
+
+    // Left fillet circle centre (127, -8) r 8; (134, -1) is 9.9 away -> filled,
+    // (128, -1) is 7.07 away -> carved. Mutation: no fillet / convex fillet.
+    test('neck meets the pill top with concave fillets', () {
+      final p = neckPath();
+      expect(p.contains(const Offset(134, -1)), isTrue);
+      expect(p.contains(const Offset(128, -1)), isFalse);
+      expect(p.contains(const Offset(216, -1)), isTrue);
+      expect(p.contains(const Offset(222, -1)), isFalse);
+      // Pill top edge outside the fillet zone stays flat.
+      expect(p.contains(const Offset(120, -1)), isFalse);
+      expect(p.contains(const Offset(120, 1)), isTrue);
+    });
+
+    test('body fillets still exist next to the neck', () {
+      final p = neckPath();
+      expect(p.contains(const Offset(99, 39)), isTrue);
+      expect(p.contains(const Offset(93, 39)), isFalse);
+    });
+
+    // Neck left edge flush with the pill: straight edge, no fillet or
+    // rounded pill corner there; right side still has its fillet.
+    test('flush side has no fillet', () {
+      final p = neckPath(neck: const Rect.fromLTRB(100, -50, 215, -13));
+      expect(p.getBounds().left, 0); // body, not the neck
+      expect(p.contains(const Offset(100.5, 0.5)), isTrue);
+      expect(p.contains(const Offset(100.5, -10)), isTrue);
+      expect(p.contains(const Offset(99, -1)), isFalse);
+      expect(p.contains(const Offset(216, -1)), isTrue);
+      expect(p.contains(const Offset(222, -1)), isFalse);
+    });
+
+    // Gap 5 -> fillet r 5, centre (100, -5): (104.5, -0.5) filled (6.4 > 5),
+    // (102, -1) carved (4.5 < 5). Mutation: radius not clamped by the gap.
+    test('fillet radius is clamped to the gap to the pill edge', () {
+      final p = neckPath(neck: const Rect.fromLTRB(105, -50, 215, -13));
+      expect(p.contains(const Offset(104.5, -0.5)), isTrue);
+      expect(p.contains(const Offset(102, -1)), isFalse);
+    });
+
+    test('neck on a bare pill (no body) is one closed shape', () {
+      final p = neckPath(body: 0);
+      expect(p.getBounds(), const Rect.fromLTRB(100, -50, 250, 40));
+      expect(p.contains(const Offset(175, -30)), isTrue);
+      expect(p.contains(const Offset(175, 30)), isTrue);
+      expect(p.contains(const Offset(134, -1)), isTrue);
+      expect(p.contains(const Offset(128, -1)), isFalse);
+    });
+
+    test('hitTest reaches the neck', () {
+      final p = _neckPainter();
+      expect(p.hitTest(const Offset(175, -30)), isTrue);
+      expect(p.hitTest(const Offset(120, -30)), isFalse);
+    });
+
+    test('paint: no saveLayer, filter, or mask filter with a neck', () {
+      final canvas = _Recording();
+      _neckPainter().paint(canvas, const Size(350, 200));
+      expect(canvas.calls, isNot(contains(#saveLayer)));
+      expect(canvas.calls, contains(#drawPath));
+      for (final paint in canvas.paints) {
+        expect(paint.imageFilter, isNull);
+        expect(paint.maskFilter, isNull);
+      }
+    });
+
+    test('shouldRepaint compares the neck fields', () {
+      final a = _neckPainter();
+      expect(a.shouldRepaint(_neckPainter()), isFalse);
+      expect(a.shouldRepaint(_neckPainter(neck: null)), isTrue);
+      expect(
+        a.shouldRepaint(_neckPainter(neck: const Rect.fromLTWH(0, 0, 9, 9))),
+        isTrue,
+      );
     });
   });
 

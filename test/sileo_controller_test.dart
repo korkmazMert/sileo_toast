@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sileo_toast/sileo_toast.dart';
+import 'package:sileo_toast/src/constants.dart';
 
 const _s = Duration(seconds: 1);
 
@@ -16,6 +17,83 @@ void main() {
   tearDown(() {
     // Tests that dispose themselves must not double-dispose.
     c.dispose();
+  });
+
+  group('island slot (spec §7.3 One slot)', () {
+    const island = SileoPosition.island;
+    SileoOptions at(String id, [SileoPosition p = island]) =>
+        SileoOptions(id: id, position: p, persistent: true);
+    SileoItem item(String id) => c.items.firstWhere((i) => i.id == id);
+
+    test('a different id at island marks the live island item exiting', () {
+      c
+        ..show(at('a'))
+        ..show(at('b'));
+      expect(item('a').exiting, isTrue);
+      expect(item('b').exiting, isFalse);
+    });
+
+    test('the exiting island item is removed after exitDuration', () {
+      fakeAsync((async) {
+        final k = SileoController()
+          ..show(at('a'))
+          ..show(at('b'));
+        async.elapse(
+          SileoConstants.exitDuration - const Duration(milliseconds: 1),
+        );
+        expect(k.items.map((i) => i.id), ['a', 'b']);
+        async.elapse(const Duration(milliseconds: 1));
+        expect(k.items.map((i) => i.id), ['b']);
+        k.dispose();
+      });
+    });
+
+    test('same id at island morphs instead of exiting', () {
+      c
+        ..show(at('a'))
+        ..show(at('a'));
+      expect(c.items, hasLength(1));
+      expect(item('a').exiting, isFalse);
+    });
+
+    test('other positions are untouched by an island show', () {
+      c
+        ..show(at('top', SileoPosition.topCenter))
+        ..show(at('right', SileoPosition.topRight))
+        ..show(at('i'));
+      expect(item('top').exiting, isFalse);
+      expect(item('right').exiting, isFalse);
+      expect(item('i').exiting, isFalse);
+    });
+
+    test('a non-island show does not exit island items', () {
+      c
+        ..show(at('i'))
+        ..show(at('x', SileoPosition.topCenter));
+      expect(item('i').exiting, isFalse);
+    });
+
+    test('an already-exiting island item keeps its removal timer', () {
+      fakeAsync((async) {
+        final k = SileoController()
+          ..show(at('a'))
+          ..dismiss('a');
+        async.elapse(SileoConstants.exitDuration ~/ 2);
+        k.show(at('b'));
+        async.elapse(SileoConstants.exitDuration ~/ 2);
+        expect(k.items.map((i) => i.id), ['b']);
+        k.dispose();
+      });
+    });
+
+    test('works when defaultPosition is island', () {
+      c
+        ..defaultPosition = island
+        ..show(const SileoOptions(id: 'a', persistent: true))
+        ..show(const SileoOptions(id: 'b', persistent: true));
+      expect(item('a').exiting, isTrue);
+      expect(item('b').exiting, isFalse);
+    });
   });
 
   group('stacking', () {
