@@ -71,7 +71,7 @@ in equal cells; long button labels wrap and grow the button. `trailing` is hidde
 - `persistent: true` replaces `duration: null`.
 - The gooey shape is one analytic path (pill, body and concave fillets), not an SVG blur + threshold filter. No `saveLayer`.
 - Only the fallback title (the state name) is capitalized; a given title is shown as is (CSS `capitalize` breaks Turkish `i`).
-- Accessibility additions: a live-region semantics node with a dismiss action, 48 dp tap targets, no auto-dismiss under accessible navigation (`persistWhenAccessibleNavigation`), reduce motion jumps animations to their end, text scale up to 2.0 without clipping.
+- Accessibility additions: a live-region semantics node with a dismiss action, 48 dp tap targets, no auto-dismiss under accessible navigation (`persistWhenAccessibleNavigation`), reduce motion jumps animations to their end, text scale up to 2.0 without clipping. At a scaled-up text size the title wraps to a second line (then ellipsizes) instead of being cut off; at the default size it stays one ellipsized line, as in Sileo.
 - Swipe up or down past 30 dp dismisses; the package has no strings of its own.
 
 ## Hosting above the Navigator
