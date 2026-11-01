@@ -530,8 +530,8 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             theme: ThemeData(platform: platform),
-            builder: (context, child) =>
-                SileoToaster(controller: c, child: child!),
+            builder:
+                (context, child) => SileoToaster(controller: c, child: child!),
             home: const SizedBox.expand(),
           ),
         );
@@ -589,12 +589,13 @@ void main() {
       c.show(_large(trailing: _thumb, button: _b('Accept')));
       await _wait(tester, 1000);
       await _open(tester);
-      final nearest = find
-          .ancestor(
-            of: find.byKey(_thumbKey),
-            matching: find.byType(RepaintBoundary),
-          )
-          .first;
+      final nearest =
+          find
+              .ancestor(
+                of: find.byKey(_thumbKey),
+                matching: find.byType(RepaintBoundary),
+              )
+              .first;
       expect(tester.getSize(nearest), const Size(64, 64));
       await end(tester);
     });

@@ -24,7 +24,7 @@ enum FillChoice {
   sileoDark('Sileo dark', Color(0xFFF2F2F2), Color(0xFF000000)),
   custom('Custom blue', Color(0xFF1E3A8A), Color(0xFFFFFFFF));
 
-  new(this.label, this.fill, this.onFill);
+  const FillChoice(this.label, this.fill, this.onFill);
 
   final String label;
 
@@ -40,7 +40,7 @@ enum DurationChoice {
   long('6 s', Duration(seconds: 6)),
   persistent('Persistent', null);
 
-  new(this.label, this.value);
+  const DurationChoice(this.label, this.value);
 
   final String label;
   final Duration? value;
@@ -51,7 +51,7 @@ enum AutopilotChoice {
   off('Off', SileoAutopilot.off),
   custom('Custom (500 ms / 3 s)', _customAutopilot);
 
-  new(this.label, this.value);
+  const AutopilotChoice(this.label, this.value);
 
   final String label;
   final SileoAutopilot value;
@@ -63,7 +63,7 @@ enum OutcomeChoice {
   error('Error'),
   action('Action');
 
-  new(this.label);
+  const OutcomeChoice(this.label);
 
   final String label;
 }
@@ -88,7 +88,7 @@ extension SileoSizeLabel on SileoSize {
 
 /// The playground's options, replaced as a whole on every change.
 class PlaygroundSettings {
-  const new({
+  const PlaygroundSettings({
     this.position = SileoPosition.topRight,
     this.size = SileoSize.compact,
     this.description = true,

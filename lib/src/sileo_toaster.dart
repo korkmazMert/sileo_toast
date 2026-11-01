@@ -1,4 +1,8 @@
 import 'dart:math' as math;
+// Brightness is re-exported by widgets.dart only on newer Flutter; keep the
+// import so older supported versions compile.
+// ignore: unnecessary_import
+import 'dart:ui' show Brightness;
 
 import 'package:flutter/widgets.dart';
 import 'package:sileo_toast/src/constants.dart';
@@ -20,14 +24,18 @@ abstract final class Sileo {
   }
 
   /// The nearest controller, or null.
-  static SileoController? maybeOf(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<_SileoScope>()
-      ?.notifier
-      ?.controller;
+  static SileoController? maybeOf(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<_SileoScope>()
+          ?.notifier
+          ?.controller;
 }
 
 class _SileoScope extends InheritedNotifier<_ScopeNotifier> {
-  const new({required _ScopeNotifier super.notifier, required super.child});
+  const _SileoScope({
+    required _ScopeNotifier super.notifier,
+    required super.child,
+  });
 
   @override
   bool updateShouldNotify(_SileoScope oldWidget) =>
@@ -36,7 +44,7 @@ class _SileoScope extends InheritedNotifier<_ScopeNotifier> {
 
 // Holder so the scope notifies on controller identity only.
 class _ScopeNotifier extends ChangeNotifier {
-  new(this.controller);
+  _ScopeNotifier(this.controller);
   final SileoController controller;
 }
 
@@ -44,7 +52,7 @@ class _ScopeNotifier extends ChangeNotifier {
 /// `MaterialApp.builder`); it is a plain [Stack], not an Overlay.
 class SileoToaster extends StatefulWidget {
   /// Creates a toaster.
-  const new({
+  const SileoToaster({
     required this.child,
     this.controller,
     this.position = SileoPosition.topRight,
@@ -185,29 +193,32 @@ class _SileoToasterState extends State<SileoToaster> {
                 final items = _controller.items;
                 if (items.isEmpty) return const SizedBox.shrink();
                 final live = items.where((i) => !i.exiting);
-                final active = _engaged.isNotEmpty
-                    ? _engaged.last
-                    : (live.isEmpty ? null : live.last.id);
+                final active =
+                    _engaged.isNotEmpty
+                        ? _engaged.last
+                        : (live.isEmpty ? null : live.last.id);
                 return LayoutBuilder(
                   builder: (context, constraints) {
-                    final width = math
-                        .max(
-                          0,
-                          math.min(
-                            SileoConstants.width,
-                            constraints.maxWidth - inset.horizontal,
-                          ),
-                        )
-                        .toDouble();
-                    final largeWidth = math
-                        .max(
-                          0,
-                          math.min(
-                            SileoConstants.largeMaxWidth,
-                            constraints.maxWidth - inset.horizontal,
-                          ),
-                        )
-                        .toDouble();
+                    final width =
+                        math
+                            .max(
+                              0,
+                              math.min(
+                                SileoConstants.width,
+                                constraints.maxWidth - inset.horizontal,
+                              ),
+                            )
+                            .toDouble();
+                    final largeWidth =
+                        math
+                            .max(
+                              0,
+                              math.min(
+                                SileoConstants.largeMaxWidth,
+                                constraints.maxWidth - inset.horizontal,
+                              ),
+                            )
+                            .toDouble();
                     return Stack(
                       children: [
                         for (final p in SileoPosition.values)

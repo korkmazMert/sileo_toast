@@ -6,7 +6,7 @@ import 'package:sileo_toast/src/sileo_state.dart';
 @immutable
 class SileoAutopilot {
   /// Creates autopilot settings; null delays use Sileo's defaults.
-  const new({this.enabled = true, this.expand, this.collapse});
+  const SileoAutopilot({this.enabled = true, this.expand, this.collapse});
 
   /// Autopilot disabled.
   static const off = SileoAutopilot(enabled: false);
@@ -35,7 +35,7 @@ class SileoAutopilot {
 @immutable
 class SileoButton {
   /// Creates a button.
-  const new({required this.title, required this.onPressed});
+  const SileoButton({required this.title, required this.onPressed});
 
   /// Label.
   final String title;
@@ -57,7 +57,7 @@ enum SileoSize {
 @immutable
 class SileoStyles {
   /// Creates overrides.
-  const new({
+  const SileoStyles({
     this.title,
     this.description,
     this.badgeBackground,
@@ -105,7 +105,7 @@ class SileoStyles {
 @immutable
 class SileoOptions {
   /// Creates options. A [duration] of zero or less means persistent.
-  const new({
+  const SileoOptions({
     this.title,
     this.description,
     this.type,
@@ -224,14 +224,12 @@ class SileoOptions {
       duration: duration ?? defaults.duration,
       persistent: persistent || defaults.persistent,
       icon: icon ?? defaults.icon,
-      styles: styles == null
-          ? defaults.styles
-          : styles!.mergeWith(defaults.styles),
+      styles:
+          styles == null ? defaults.styles : styles!.mergeWith(defaults.styles),
       fill: fill ?? defaults.fill,
       roundness: roundness ?? defaults.roundness,
-      autopilot: autopilot == const SileoAutopilot()
-          ? defaults.autopilot
-          : autopilot,
+      autopilot:
+          autopilot == const SileoAutopilot() ? defaults.autopilot : autopilot,
       button: button ?? defaults.button,
       id: id ?? defaults.id,
       size: size ?? defaults.size,
@@ -245,7 +243,7 @@ class SileoOptions {
 @immutable
 class SileoPromiseOptions<T> {
   /// Creates promise options.
-  const new({
+  const SileoPromiseOptions({
     required this.loading,
     required this.success,
     required this.error,

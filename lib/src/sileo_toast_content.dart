@@ -4,7 +4,7 @@ part of 'sileo_toast_view.dart';
 /// header. Padding matches Sileo; the button's 48 dp hit box eats into the
 /// margins so the visual spacing is unchanged.
 class _ContentBody extends StatelessWidget {
-  const new({
+  const _ContentBody({
     required this.view,
     required this.tone,
     required this.descriptionColor,
@@ -71,7 +71,7 @@ class _ContentBody extends StatelessWidget {
 
 /// The action button: a 28 dp pill in a 48 dp hit box with its own gesture.
 class _ActionButton extends StatefulWidget {
-  const new({
+  const _ActionButton({
     required this.button,
     required this.tone,
     required this.styles,
@@ -119,13 +119,16 @@ class _ActionButtonState extends State<_ActionButton> {
     final styles = widget.styles;
     final tone = widget.tone;
     final highlighted = _pressed || _hovered;
-    final background = highlighted
-        ? styles?.buttonPressedBackground ??
-              tone.withValues(alpha: SileoConstants.buttonPressedAlpha)
-        : styles?.buttonBackground ?? tone.withValues(alpha: widget.idleAlpha);
-    final fade = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
-        ? Duration.zero
-        : SileoConstants.buttonFade;
+    final background =
+        highlighted
+            ? styles?.buttonPressedBackground ??
+                tone.withValues(alpha: SileoConstants.buttonPressedAlpha)
+            : styles?.buttonBackground ??
+                tone.withValues(alpha: widget.idleAlpha);
+    final fade =
+        (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+            ? Duration.zero
+            : SileoConstants.buttonFade;
     return Semantics(
       container: true,
       button: true,
@@ -159,12 +162,13 @@ class _ActionButtonState extends State<_ActionButton> {
                     duration: fade,
                     decoration: ShapeDecoration(
                       shape: StadiumBorder(
-                        side: _focused
-                            ? BorderSide(
-                                color: tone,
-                                width: SileoConstants.focusRingWidth,
-                              )
-                            : BorderSide.none,
+                        side:
+                            _focused
+                                ? BorderSide(
+                                  color: tone,
+                                  width: SileoConstants.focusRingWidth,
+                                )
+                                : BorderSide.none,
                       ),
                       color: background,
                     ),

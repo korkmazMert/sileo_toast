@@ -15,7 +15,7 @@ double _unless(bool flush, double v) => flush ? 0 : v;
 /// through a prebuilt `repaint` the owner builds once.
 class SileoShapePainter extends CustomPainter {
   /// Creates a painter. Bottom toasts pass [flipped] so the body grows up.
-  new({
+  SileoShapePainter({
     required this.fill,
     required this.roundness,
     required this.width,

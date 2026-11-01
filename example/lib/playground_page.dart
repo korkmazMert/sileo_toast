@@ -8,7 +8,7 @@ import 'package:sileo_toast_example/playground_fire.dart';
 /// Every option of a toast, then the buttons that fire one through
 /// `Sileo.of`. The settings are this page's own state.
 class PlaygroundPage extends StatefulWidget {
-  const new({super.key});
+  const PlaygroundPage({super.key});
 
   @override
   State<PlaygroundPage> createState() => _PlaygroundPageState();
@@ -76,39 +76,42 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
               _Buttons(
                 children: [
                   FilledButton.tonal(
-                    onPressed: () =>
-                        _fire('Changes saved', (c, o) => c.success(o)),
+                    onPressed:
+                        () => _fire('Changes saved', (c, o) => c.success(o)),
                     child: const Text('Success'),
                   ),
                   FilledButton.tonal(
-                    onPressed: () =>
-                        _fire('Something went wrong', (c, o) => c.error(o)),
+                    onPressed:
+                        () =>
+                            _fire('Something went wrong', (c, o) => c.error(o)),
                     child: const Text('Error'),
                   ),
                   FilledButton.tonal(
-                    onPressed: () =>
-                        _fire('Low disk space', (c, o) => c.warning(o)),
+                    onPressed:
+                        () => _fire('Low disk space', (c, o) => c.warning(o)),
                     child: const Text('Warning'),
                   ),
                   FilledButton.tonal(
-                    onPressed: () =>
-                        _fire('Did you know?', (c, o) => c.info(o)),
+                    onPressed:
+                        () => _fire('Did you know?', (c, o) => c.info(o)),
                     child: const Text('Info'),
                   ),
                   FilledButton.tonal(
-                    onPressed: () => _fire(
-                      'Update available',
-                      (c, o) => c.action(o),
-                      button: true,
-                    ),
+                    onPressed:
+                        () => _fire(
+                          'Update available',
+                          (c, o) => c.action(o),
+                          button: true,
+                        ),
                     child: const Text('Action'),
                   ),
                   FilledButton.tonal(
-                    onPressed: () => _fire(
-                      'Parcel on its way',
-                      (c, o) => c.show(o),
-                      icon: const Icon(Icons.local_shipping_rounded),
-                    ),
+                    onPressed:
+                        () => _fire(
+                          'Parcel on its way',
+                          (c, o) => c.show(o),
+                          icon: const Icon(Icons.local_shipping_rounded),
+                        ),
                     child: const Text('Custom icon'),
                   ),
                   FilledButton.tonal(
@@ -128,9 +131,10 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
                       ChoiceChip(
                         label: Text(o.label),
                         selected: o == _settings.outcome,
-                        onSelected: (_) => setState(
-                          () => _settings = _settings.copyWith(outcome: o),
-                        ),
+                        onSelected:
+                            (_) => setState(
+                              () => _settings = _settings.copyWith(outcome: o),
+                            ),
                       ),
                   ],
                 ),
@@ -161,7 +165,7 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
 }
 
 class _Heading extends StatelessWidget {
-  const new(this.text);
+  const _Heading(this.text);
 
   final String text;
 
@@ -175,7 +179,7 @@ class _Heading extends StatelessWidget {
 }
 
 class _Buttons extends StatelessWidget {
-  const new({required this.children});
+  const _Buttons({required this.children});
 
   final List<Widget> children;
 
@@ -190,7 +194,7 @@ class _Buttons extends StatelessWidget {
 
 /// The built-in stand-in for a trailing image of a large toast.
 class TrailingArt extends StatelessWidget {
-  const new({super.key});
+  const TrailingArt({super.key});
 
   @override
   Widget build(BuildContext context) {

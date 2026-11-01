@@ -3,7 +3,7 @@ part of 'sileo_toast_view.dart';
 /// What the toast currently shows; swapped as a whole on a same-id morph.
 @immutable
 class _View {
-  const new({
+  const _View({
     required this.title,
     required this.description,
     required this.state,
@@ -15,7 +15,7 @@ class _View {
     required this.secondaryButton,
   });
 
-  factory of(SileoOptions o) {
+  factory _View.of(SileoOptions o) {
     final state = o.type ?? SileoState.success;
     return _View(
       // Only the fallback is capitalized: Sileo's CSS `capitalize` would turn
@@ -57,7 +57,7 @@ enum _Transition { none, enter, exit }
 
 /// One header layer: badge and title, fading and un-blurring in or out.
 class _HeaderLayer extends StatefulWidget {
-  const new({
+  const _HeaderLayer({
     required this.view,
     required this.tone,
     required this.transition,
@@ -163,7 +163,7 @@ class _HeaderLayerState extends State<_HeaderLayer>
 }
 
 class _Badge extends StatelessWidget {
-  const new({required this.view, required this.tone, required this.metrics});
+  const _Badge({required this.view, required this.tone, required this.metrics});
 
   final _View view;
   final Color tone;
@@ -219,7 +219,7 @@ class _Badge extends StatelessWidget {
 
 /// The loading icon: one turn per second, still under reduce motion.
 class _Spinner extends StatefulWidget {
-  const new({required this.color, required this.size});
+  const _Spinner({required this.color, required this.size});
 
   final Color color;
   final double size;

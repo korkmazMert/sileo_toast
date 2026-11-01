@@ -1,3 +1,8 @@
+// Brightness is re-exported by widgets.dart only on newer Flutter; keep the
+// import so older supported versions compile.
+// ignore: unnecessary_import
+import 'dart:ui' show Brightness;
+
 import 'package:flutter/widgets.dart';
 import 'package:sileo_toast/src/constants.dart';
 import 'package:sileo_toast/src/sileo_state.dart';
@@ -18,7 +23,7 @@ enum SileoThemeMode {
 @immutable
 class SileoStateColors {
   /// Creates a palette; defaults are Sileo's.
-  const new({
+  const SileoStateColors({
     this.success = SileoConstants.success,
     this.loading = SileoConstants.loading,
     this.error = SileoConstants.error,
@@ -91,18 +96,22 @@ class SileoStateColors {
 @immutable
 class SileoFill {
   /// Creates a fill.
-  const new({required this.fill, this.description});
+  const SileoFill({required this.fill, this.description});
 
   /// Resolves [mode] against [platformBrightness] (used by `system`).
   ///
   /// A null [mode] gives the white fill and no description color, so the
   /// description inherits the toaster's text style.
-  factory resolve(SileoThemeMode? mode, Brightness platformBrightness) {
-    final resolved = mode == SileoThemeMode.system
-        ? (platformBrightness == Brightness.dark
-              ? SileoThemeMode.dark
-              : SileoThemeMode.light)
-        : mode;
+  factory SileoFill.resolve(
+    SileoThemeMode? mode,
+    Brightness platformBrightness,
+  ) {
+    final resolved =
+        mode == SileoThemeMode.system
+            ? (platformBrightness == Brightness.dark
+                ? SileoThemeMode.dark
+                : SileoThemeMode.light)
+            : mode;
     return switch (resolved) {
       SileoThemeMode.light => SileoFill(
         fill: SileoConstants.lightFill,

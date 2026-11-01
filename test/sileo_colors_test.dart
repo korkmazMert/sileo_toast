@@ -78,19 +78,20 @@ void main() {
   group('package purity', () {
     // Mutation: any lib file imports material/cupertino -> fails.
     test('lib imports no material or cupertino', () {
-      final offenders = Directory('lib')
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.dart'))
-          .where((f) {
-            final src = f.readAsStringSync();
-            return src.contains('flutter/material') ||
-                src.contains('flutter/cupertino') ||
-                src.contains('material_ui') ||
-                src.contains('cupertino_ui');
-          })
-          .map((f) => f.path)
-          .toList();
+      final offenders =
+          Directory('lib')
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((f) => f.path.endsWith('.dart'))
+              .where((f) {
+                final src = f.readAsStringSync();
+                return src.contains('flutter/material') ||
+                    src.contains('flutter/cupertino') ||
+                    src.contains('material_ui') ||
+                    src.contains('cupertino_ui');
+              })
+              .map((f) => f.path)
+              .toList();
       expect(offenders, isEmpty);
     });
   });

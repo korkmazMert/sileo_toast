@@ -560,17 +560,18 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         MaterialApp(
-          builder: (context, child) => SileoToaster(
-            controller: c,
-            theme: theme,
-            textStyle: textStyle,
-            child: Stack(
-              children: [
-                child!,
-                const Positioned(bottom: 300, child: Text('control')),
-              ],
-            ),
-          ),
+          builder:
+              (context, child) => SileoToaster(
+                controller: c,
+                theme: theme,
+                textStyle: textStyle,
+                child: Stack(
+                  children: [
+                    child!,
+                    const Positioned(bottom: 300, child: Text('control')),
+                  ],
+                ),
+              ),
           home: const SizedBox.expand(),
         ),
       );
@@ -653,11 +654,12 @@ void main() {
     // Spec is inconsistent on the size (IconTheme 14 vs badge icon 16): not
     // asserted, see report.
     // Mutation: IconTheme missing -> custom icon keeps the ambient color.
-    for (final e in {
-      SileoState.success: const Color(0xFF22C55E),
-      SileoState.error: const Color(0xFFEF4444),
-      SileoState.action: const Color(0xFF3B82F6),
-    }.entries) {
+    for (final e
+        in {
+          SileoState.success: const Color(0xFF22C55E),
+          SileoState.error: const Color(0xFFEF4444),
+          SileoState.action: const Color(0xFF3B82F6),
+        }.entries) {
       testWidgets('custom Icon takes the ${e.key.name} tone', (tester) async {
         await app(tester);
         c.show(

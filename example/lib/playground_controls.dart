@@ -5,7 +5,11 @@ import 'package:sileo_toast_example/playground_choices.dart';
 
 /// Every option of a toast; changes go out as a whole new [PlaygroundSettings].
 class SettingsSection extends StatelessWidget {
-  const new({required this.settings, required this.onChanged, super.key});
+  const SettingsSection({
+    required this.settings,
+    required this.onChanged,
+    super.key,
+  });
 
   final PlaygroundSettings settings;
   final ValueChanged<PlaygroundSettings> onChanged;
@@ -77,15 +81,17 @@ class SettingsSection extends StatelessWidget {
         ),
         SwitchListTile(
           title: const Text('Second button'),
-          subtitle: !large
-              ? const Text('Large size only')
-              : s.button
-              ? null
-              : const Text('Turn on Button first'),
+          subtitle:
+              !large
+                  ? const Text('Large size only')
+                  : s.button
+                  ? null
+                  : const Text('Turn on Button first'),
           value: s.secondButton,
-          onChanged: large && s.button
-              ? (v) => onChanged(s.copyWith(secondButton: v))
-              : null,
+          onChanged:
+              large && s.button
+                  ? (v) => onChanged(s.copyWith(secondButton: v))
+                  : null,
         ),
         SwitchListTile(
           title: const Text('Separate id'),
@@ -103,7 +109,7 @@ class SettingsSection extends StatelessWidget {
 
 /// A labelled wrap of single-choice chips.
 class _ChoiceGroup<T> extends StatelessWidget {
-  const new({
+  const _ChoiceGroup({
     required this.label,
     required this.values,
     required this.labelOf,

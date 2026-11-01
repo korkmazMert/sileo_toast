@@ -1,7 +1,7 @@
 part of 'sileo_toaster.dart';
 
 class _Viewport extends StatelessWidget {
-  const new({
+  const _Viewport({
     required this.position,
     required this.inset,
     required this.items,

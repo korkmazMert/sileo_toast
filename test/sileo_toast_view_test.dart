@@ -68,9 +68,10 @@ Finder get _painters => find.byWidgetPredicate(
   (w) => w is CustomPaint && w.painter is SileoShapePainter,
 );
 
-Finder _painterOf([String? id]) => id == null
-    ? _painters
-    : find.descendant(of: find.byKey(ValueKey(id)), matching: _painters);
+Finder _painterOf([String? id]) =>
+    id == null
+        ? _painters
+        : find.descendant(of: find.byKey(ValueKey(id)), matching: _painters);
 
 SileoShapePainter _shape(WidgetTester t, [String? id]) =>
     t.widget<CustomPaint>(_painterOf(id)).painter! as SileoShapePainter;
@@ -521,9 +522,7 @@ void main() {
       var pressed = 0;
       await _host(tester, c);
       c.show(
-        _desc(
-          button: SileoButton(title: 'Undo', onPressed: () => pressed++),
-        ),
+        _desc(button: SileoButton(title: 'Undo', onPressed: () => pressed++)),
       );
       await _wait(tester, 1500);
       await tester.dragFrom(
@@ -542,9 +541,7 @@ void main() {
       var pressed = 0;
       await _host(tester, c);
       c.show(
-        _desc(
-          button: SileoButton(title: 'Undo', onPressed: () => pressed++),
-        ),
+        _desc(button: SileoButton(title: 'Undo', onPressed: () => pressed++)),
       );
       await _wait(tester, 1500);
       return () => pressed;
@@ -611,8 +608,8 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             theme: ThemeData(platform: platform),
-            builder: (context, child) =>
-                SileoToaster(controller: c, child: child!),
+            builder:
+                (context, child) => SileoToaster(controller: c, child: child!),
             home: const SizedBox.expand(),
           ),
         );
@@ -889,11 +886,12 @@ void main() {
       await _host(tester, c);
       c.show(_desc(autopilot: SileoAutopilot.off));
       await _wait(tester, 1000);
-      Tristate expanded() => tester
-          .getSemantics(find.bySemanticsLabel(RegExp('^Saved')))
-          .getSemanticsData()
-          .flagsCollection
-          .isExpanded;
+      Tristate expanded() =>
+          tester
+              .getSemantics(find.bySemanticsLabel(RegExp('^Saved')))
+              .getSemanticsData()
+              .flagsCollection
+              .isExpanded;
       expect(expanded(), Tristate.isFalse);
       tester.semantics.performAction(
         find.semantics.byLabel(RegExp('^Saved')),
@@ -918,9 +916,7 @@ void main() {
       var pressed = 0;
       await _host(tester, c);
       c.show(
-        _desc(
-          button: SileoButton(title: 'Undo', onPressed: () => pressed++),
-        ),
+        _desc(button: SileoButton(title: 'Undo', onPressed: () => pressed++)),
       );
       await _wait(tester, 1500);
       Focus.of(tester.element(find.text('Undo'))).requestFocus();

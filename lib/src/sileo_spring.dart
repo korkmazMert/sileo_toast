@@ -28,7 +28,7 @@ const sileoCloseSpring = SpringDescription(
 const Curve sileoSpringCurve = _SileoSpringCurve();
 
 class _SileoSpringCurve extends Curve {
-  const new();
+  const _SileoSpringCurve();
 
   @override
   double transformInternal(double t) {

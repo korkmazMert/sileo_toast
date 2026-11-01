@@ -10,17 +10,11 @@ material_ui, cupertino_ui or plain widgets.
 
 ## Install
 
-```yaml
-dependencies:
-  sileo_toast:
-    git:
-      url: https://github.com/korkmazMert/sileo_toast.git
-      ref: v0.1.0-dev.2
+```sh
+flutter pub add sileo_toast
 ```
 
-Once published on pub.dev: `sileo_toast: ^0.1.0`.
-
-Requires Dart `^3.13.0` and Flutter `>=3.47.0`.
+Requires Dart `^3.7.0` and Flutter `>=3.29.0`.
 
 ## Usage
 

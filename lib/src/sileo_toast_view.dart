@@ -37,7 +37,7 @@ part 'sileo_toast_motion.dart';
 ///   disposed (a hovered toast being removed): the host must tolerate that.
 class SileoToastView extends StatefulWidget {
   /// Creates a toast view.
-  const new({
+  const SileoToastView({
     required this.item,
     required this.width,
     required this.fill,
@@ -400,23 +400,25 @@ class _SileoToastViewState extends State<SileoToastView>
     final animate = _measured && !_reduceMotion;
     final header = _metrics.header;
     final width = _width;
-    final pill = _rowWidth <= 0
-        ? header
-        : math.max(
-            header,
-            math.min(
-              width,
-              _rowWidth +
-                  2 * SileoConstants.headerPadding +
-                  SileoConstants.pillPadding,
-            ),
-          );
+    final pill =
+        _rowWidth <= 0
+            ? header
+            : math.max(
+              header,
+              math.min(
+                width,
+                _rowWidth +
+                    2 * SileoConstants.headerPadding +
+                    SileoConstants.pillPadding,
+              ),
+            );
     final pillX = (width - pill) * (widget.item.position.pillAlign.x + 1) / 2;
     final open = _open;
     final minExpanded = header * SileoConstants.minExpandRatio;
-    final expanded = _hasContent
-        ? math.max(minExpanded, header + _contentHeight)
-        : minExpanded;
+    final expanded =
+        _hasContent
+            ? math.max(minExpanded, header + _contentHeight)
+            : minExpanded;
 
     _m.retarget(
       animate: animate,
@@ -543,12 +545,10 @@ class _SileoToastViewState extends State<SileoToastView>
                   onTap: _toggle,
                   onVerticalDragDown: canDrag ? _onDragDown : null,
                   onVerticalDragUpdate: canDrag ? _onDragUpdate : null,
-                  onVerticalDragEnd: canDrag
-                      ? (_) => _endDrag(released: true)
-                      : null,
-                  onVerticalDragCancel: canDrag
-                      ? () => _endDrag(released: false)
-                      : null,
+                  onVerticalDragEnd:
+                      canDrag ? (_) => _endDrag(released: true) : null,
+                  onVerticalDragCancel:
+                      canDrag ? () => _endDrag(released: false) : null,
                   child: box,
                 ),
               ),

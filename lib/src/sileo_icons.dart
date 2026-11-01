@@ -25,7 +25,7 @@ enum SileoIcon {
 /// Paints a [SileoIcon] stroked in [color], scaled from the 24-unit viewBox.
 class SileoIconPainter extends CustomPainter {
   /// Creates a painter.
-  const new({required this.icon, required this.color});
+  const SileoIconPainter({required this.icon, required this.color});
 
   /// Icon to draw.
   final SileoIcon icon;

@@ -4,7 +4,7 @@ part of 'sileo_toast_view.dart';
 /// scale change so no widget branches on the size itself.
 @immutable
 class _Metrics {
-  const new({
+  const _Metrics({
     required this.large,
     required this.header,
     required this.badge,
@@ -15,11 +15,12 @@ class _Metrics {
     required this.roundness,
   });
 
-  factory of(SileoSize size, TextScaler scaler) {
+  factory _Metrics.of(SileoSize size, TextScaler scaler) {
     final large = size == SileoSize.large;
-    final titleLine = large
-        ? SileoConstants.largeTitleLineHeight
-        : SileoConstants.titleLineHeight;
+    final titleLine =
+        large
+            ? SileoConstants.largeTitleLineHeight
+            : SileoConstants.titleLineHeight;
     return _Metrics(
       large: large,
       header: math.max(
@@ -28,14 +29,16 @@ class _Metrics {
       ),
       badge: large ? SileoConstants.largeBadgeSize : SileoConstants.badgeSize,
       icon: large ? SileoConstants.largeIconSize : SileoConstants.badgeIconSize,
-      titleSize: large
-          ? SileoConstants.largeTitleFontSize
-          : SileoConstants.titleFontSize,
+      titleSize:
+          large
+              ? SileoConstants.largeTitleFontSize
+              : SileoConstants.titleFontSize,
       titleLine: titleLine,
       bodyPadding: large ? SileoConstants.largeBodyPadding : 0,
-      roundness: large
-          ? SileoConstants.largeRoundness
-          : SileoConstants.defaultRoundness,
+      roundness:
+          large
+              ? SileoConstants.largeRoundness
+              : SileoConstants.defaultRoundness,
     );
   }
 

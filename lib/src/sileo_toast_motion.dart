@@ -2,7 +2,7 @@ part of 'sileo_toast_view.dart';
 
 /// A value on a spring. Retargeting keeps the current velocity.
 class _SpringValue {
-  new(TickerProvider vsync, double initial)
+  _SpringValue(TickerProvider vsync, double initial)
     : controller = AnimationController.unbounded(vsync: vsync, value: initial),
       target = initial;
 
@@ -42,7 +42,7 @@ class _SpringValue {
 /// value when retargeted, optionally after a delay.
 class _CssValue extends Animation<double>
     with AnimationWithParentMixin<double> {
-  new(TickerProvider vsync, double initial)
+  _CssValue(TickerProvider vsync, double initial)
     : _controller = AnimationController(vsync: vsync, value: 1),
       _from = initial,
       _to = initial;
@@ -96,7 +96,7 @@ class _CssValue extends Animation<double>
 /// Reports its child's size from layout. The owner must not `setState`
 /// from [onSize]; it records the size and retargets after the frame.
 class _SizeReporter extends SingleChildRenderObjectWidget {
-  const new({required this.onSize, required super.child});
+  const _SizeReporter({required this.onSize, required super.child});
 
   final ValueChanged<Size> onSize;
 
@@ -112,7 +112,7 @@ class _SizeReporter extends SingleChildRenderObjectWidget {
 }
 
 class _RenderSizeReporter extends RenderProxyBox {
-  new(this.onSize);
+  _RenderSizeReporter(this.onSize);
 
   ValueChanged<Size> onSize;
   Size? _last;
@@ -129,7 +129,7 @@ class _RenderSizeReporter extends RenderProxyBox {
 
 /// All animated values of one toast.
 class _ToastMotion {
-  new(TickerProvider vsync)
+  _ToastMotion(TickerProvider vsync)
     : pillX = _SpringValue(vsync, 0),
       pillWidth = _SpringValue(vsync, SileoConstants.height),
       bodyHeight = _SpringValue(vsync, 0),
@@ -203,12 +203,14 @@ class _ToastMotion {
     contentOpacity.moveTo(
       open ? 1 : 0,
       animate: animate,
-      duration: open
-          ? SileoConstants.contentOpenFade
-          : SileoConstants.contentCloseFade,
-      delay: open
-          ? SileoConstants.contentOpenDelay
-          : SileoConstants.contentCloseDelay,
+      duration:
+          open
+              ? SileoConstants.contentOpenFade
+              : SileoConstants.contentCloseFade,
+      delay:
+          open
+              ? SileoConstants.contentOpenDelay
+              : SileoConstants.contentCloseDelay,
       curve: Curves.ease,
     );
   }

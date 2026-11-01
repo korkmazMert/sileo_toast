@@ -2,7 +2,7 @@ part of 'sileo_toast_view.dart';
 
 /// Entry/exit (opacity, scale, translate) and the swipe offset.
 class _ToastEntry extends StatelessWidget {
-  const new({
+  const _ToastEntry({
     required this.presence,
     required this.scale,
     required this.drag,
@@ -27,18 +27,22 @@ class _ToastEntry extends StatelessWidget {
         child: AnimatedBuilder(
           animation: drag,
           child: child,
-          builder: (context, child) =>
-              Transform.translate(offset: Offset(0, drag.value), child: child),
+          builder:
+              (context, child) => Transform.translate(
+                offset: Offset(0, drag.value),
+                child: child,
+              ),
         ),
-        builder: (context, child) => Transform.translate(
-          offset: Offset(
-            0,
-            (isTop ? -1 : 1) *
-                SileoConstants.entryTranslate *
-                (1 - presence.value),
-          ),
-          child: child,
-        ),
+        builder:
+            (context, child) => Transform.translate(
+              offset: Offset(
+                0,
+                (isTop ? -1 : 1) *
+                    SileoConstants.entryTranslate *
+                    (1 - presence.value),
+              ),
+              child: child,
+            ),
       ),
     ),
   );
@@ -46,7 +50,11 @@ class _ToastEntry extends StatelessWidget {
 
 /// Sizes the toast to its animated height without rebuilding the subtree.
 class _ToastBox extends StatelessWidget {
-  const new({required this.width, required this.height, required this.child});
+  const _ToastBox({
+    required this.width,
+    required this.height,
+    required this.child,
+  });
 
   final double width;
   final Animation<double> height;
@@ -56,17 +64,18 @@ class _ToastBox extends StatelessWidget {
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: height,
     child: child,
-    builder: (context, child) => SizedBox(
-      width: width,
-      height: math.max(0, height.value) + 2 * SileoConstants.tapExtension,
-      child: child,
-    ),
+    builder:
+        (context, child) => SizedBox(
+          width: width,
+          height: math.max(0, height.value) + 2 * SileoConstants.tapExtension,
+          child: child,
+        ),
   );
 }
 
 /// The gooey outline. Springs repaint it directly; it never rebuilds.
 class _ToastShape extends StatelessWidget {
-  const new({
+  const _ToastShape({
     required this.fill,
     required this.roundness,
     required this.width,
@@ -117,7 +126,7 @@ class _ToastShape extends StatelessWidget {
 
 /// Description and button; fades with the CSS curve, ignored while closed.
 class _ToastContent extends StatelessWidget {
-  const new({
+  const _ToastContent({
     required this.view,
     required this.tone,
     required this.descriptionColor,
@@ -174,7 +183,7 @@ class _ToastContent extends StatelessWidget {
 /// The header: positioned at the pill, clipped to its (lagging) width, and
 /// scaled/shifted while the body is open.
 class _ToastHeader extends StatelessWidget {
-  const new({
+  const _ToastHeader({
     required this.animation,
     required this.left,
     required this.width,
@@ -225,9 +234,8 @@ class _ToastHeader extends StatelessWidget {
                     key: ValueKey('current-${current.headerKey}'),
                     view: current,
                     tone: toneOf(current.state),
-                    transition: previous == null
-                        ? _Transition.none
-                        : _Transition.enter,
+                    transition:
+                        previous == null ? _Transition.none : _Transition.enter,
                     metrics: metrics,
                     onRowSize: onRowSize,
                   ),

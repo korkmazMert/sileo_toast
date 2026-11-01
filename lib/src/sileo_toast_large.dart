@@ -3,20 +3,21 @@ part of 'sileo_toast_view.dart';
 /// Hides an unlabeled trailing from semantics. A top-level `Semantics` is the
 /// caller's own label: it stays, as its own node.
 class _TrailingSlot extends StatelessWidget {
-  const new({required this.trailing, required this.child});
+  const _TrailingSlot({required this.trailing, required this.child});
 
   final Widget trailing;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => trailing is Semantics
-      ? Semantics(container: true, child: child)
-      : ExcludeSemantics(child: child);
+  Widget build(BuildContext context) =>
+      trailing is Semantics
+          ? Semantics(container: true, child: child)
+          : ExcludeSemantics(child: child);
 }
 
 /// Large body: description and trailing thumbnail, then the buttons row.
 class _LargeBody extends StatelessWidget {
-  const new({
+  const _LargeBody({
     required this.view,
     required this.tone,
     required this.descriptionColor,
@@ -37,11 +38,10 @@ class _LargeBody extends StatelessWidget {
     const gap = SileoConstants.largeButtonGap;
     // Reads on every fill: the theme's description color (opaque), else the
     // ambient text color.
-    final secondaryTone =
-        (descriptionColor ??
-                DefaultTextStyle.of(context).style.color ??
-                SileoConstants.lightDescription)
-            .withValues(alpha: 1);
+    final secondaryTone = (descriptionColor ??
+            DefaultTextStyle.of(context).style.color ??
+            SileoConstants.lightDescription)
+        .withValues(alpha: 1);
     return Padding(
       padding: EdgeInsets.all(padding),
       child: Column(
@@ -53,18 +53,19 @@ class _LargeBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: description == null
-                      ? const SizedBox.shrink()
-                      : DefaultTextStyle.merge(
-                          style: TextStyle(
-                            fontSize: SileoConstants.descriptionFontSize,
-                            height:
-                                SileoConstants.descriptionLineHeight /
-                                SileoConstants.descriptionFontSize,
-                            color: descriptionColor,
-                          ).merge(view.styles?.description),
-                          child: description,
-                        ),
+                  child:
+                      description == null
+                          ? const SizedBox.shrink()
+                          : DefaultTextStyle.merge(
+                            style: TextStyle(
+                              fontSize: SileoConstants.descriptionFontSize,
+                              height:
+                                  SileoConstants.descriptionLineHeight /
+                                  SileoConstants.descriptionFontSize,
+                              color: descriptionColor,
+                            ).merge(view.styles?.description),
+                            child: description,
+                          ),
                 ),
                 if (trailing != null) ...[
                   const SizedBox(width: gap),

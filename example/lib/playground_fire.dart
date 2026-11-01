@@ -26,35 +26,42 @@ SileoOptions buildOptions(
   final second = settings.secondButton && large;
   return SileoOptions(
     title: title,
-    description: settings.description
-        ? SileoOptions.text('This is the description of the toast.')
-        : null,
+    description:
+        settings.description
+            ? SileoOptions.text('This is the description of the toast.')
+            : null,
     position: settings.position,
     duration: settings.duration.value,
     persistent: settings.duration == DurationChoice.persistent,
     icon: icon,
     fill: fill.fill,
-    styles: fill.onFill == null
-        ? null
-        : SileoStyles(
-            description: TextStyle(
-              color: fill.onFill!.withValues(alpha: _descriptionAlpha),
+    styles:
+        fill.onFill == null
+            ? null
+            : SileoStyles(
+              description: TextStyle(
+                color: fill.onFill!.withValues(alpha: _descriptionAlpha),
+              ),
             ),
-          ),
     roundness: settings.roundness,
     autopilot: settings.autopilot.value,
     size: settings.size,
     trailing: large ? trailing : null,
     // A toast's buttons dismiss their own toast.
-    secondaryButton: second
-        ? SileoButton(title: 'Decline', onPressed: () => controller.dismiss(id))
-        : null,
-    button: (button ?? settings.button)
-        ? SileoButton(
-            title: second ? 'Accept' : 'Undo',
-            onPressed: () => controller.dismiss(id),
-          )
-        : null,
+    secondaryButton:
+        second
+            ? SileoButton(
+              title: 'Decline',
+              onPressed: () => controller.dismiss(id),
+            )
+            : null,
+    button:
+        (button ?? settings.button)
+            ? SileoButton(
+              title: second ? 'Accept' : 'Undo',
+              onPressed: () => controller.dismiss(id),
+            )
+            : null,
     id: id,
   );
 }
@@ -110,9 +117,10 @@ void firePromise(
             loading: options('Sending...'),
             success: (_) => options('Sent'),
             error: (_) => options('Send failed'),
-            action: outcome == OutcomeChoice.action
-                ? (_) => options('Update available', button: true)
-                : null,
+            action:
+                outcome == OutcomeChoice.action
+                    ? (_) => options('Update available', button: true)
+                    : null,
           ),
         )
         .catchError((Object _) {}),

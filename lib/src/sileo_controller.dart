@@ -14,7 +14,7 @@ const _defaultId = 'sileo-default';
 @immutable
 class SileoItem {
   /// Creates an item.
-  const new({
+  const SileoItem({
     required this.id,
     required this.instanceId,
     required this.options,
@@ -116,8 +116,9 @@ class SileoController extends ChangeNotifier {
             _put(options.success(data).copyWith(id: id), SileoState.success);
           }
         },
-        onError: (Object e) =>
-            _put(options.error(e).copyWith(id: id), SileoState.error),
+        onError:
+            (Object e) =>
+                _put(options.error(e).copyWith(id: id), SileoState.error),
       ),
     );
     return future;
@@ -151,9 +152,10 @@ class SileoController extends ChangeNotifier {
   /// Removes toasts immediately; only those at [position] when given.
   void clear([SileoPosition? position]) {
     if (_disposed) return;
-    final gone = _items
-        .where((i) => position == null || i.position == position)
-        .toList();
+    final gone =
+        _items
+            .where((i) => position == null || i.position == position)
+            .toList();
     if (gone.isEmpty) return;
     gone.forEach(_forget);
     _items.removeWhere(gone.contains);

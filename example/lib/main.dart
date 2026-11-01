@@ -7,7 +7,7 @@ void main() => runApp(const SileoExampleApp());
 
 /// Light and dark follow the system.
 class SileoExampleApp extends StatelessWidget {
-  const new({super.key});
+  const SileoExampleApp({super.key});
 
   static const _seed = Color(0xFF3B5BDB);
 
@@ -22,9 +22,10 @@ class SileoExampleApp extends StatelessWidget {
       builder: (context, child) {
         final theme = Theme.of(context);
         return SileoToaster(
-          theme: theme.brightness == Brightness.dark
-              ? SileoThemeMode.dark
-              : SileoThemeMode.light,
+          theme:
+              theme.brightness == Brightness.dark
+                  ? SileoThemeMode.dark
+                  : SileoThemeMode.light,
           textStyle: theme.textTheme.bodyMedium,
           child: child!,
         );

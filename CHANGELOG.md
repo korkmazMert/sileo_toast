@@ -1,9 +1,9 @@
-## 0.1.0-dev.2
+## 0.1.0
 
-- Repository URLs use the canonical owner casing.
+First release of the Flutter port of Sileo.
 
-## 0.1.0-dev.1
-
-- Large size (`SileoOptions.size`, `trailing`, `secondaryButton`). A top-level `Semantics` trailing stays exposed to screen readers; other trailings are hidden.
-- The large secondary button label now follows the toast's text color instead of fixed white.
-- Initial scaffold: options, theme, constants, spring and icons.
+- Physics-based gooey toast: spring-driven morphing, analytic gooey shape, promise API, swipe to dismiss.
+- Compact and large sizes. Large adds a trailing image and primary and secondary buttons.
+- Six positions, theming, autopilot.
+- Accessibility: semantics with a live region and dismiss action, reduce motion, text scale up to 2.0.
+- Flutter SDK only. Supports Dart `^3.7.0` and Flutter `>=3.29.0`.
