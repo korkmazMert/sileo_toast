@@ -983,13 +983,153 @@ void main() {
       tester,
     ) async {
       await _host(tester, c, scaler: const TextScaler.linear(2));
-      c.show(rich());
+      // A title that fits one line; a wrapping one is covered below.
+      c.show(rich().copyWith(title: 'Saved'));
       await _wait(tester, 1500);
       expect(_shape(tester).headerHeight, closeTo(48, 0.01));
       expect(_pill(tester).height, closeTo(48, 0.01));
       expect(_body(tester), greaterThan(48));
       expect(tester.takeException(), isNull);
       await end(tester);
+    });
+
+    // Spec: a title is the status word; at large text it wraps instead of
+    // ending in an ellipsis. Ahem: 13.2 sp * 2.0 = 26.4 dp per glyph, a 32 dp
+    // line (16 * 2.0); the row fits 350 - 2 * 8 - 10 - 24 - 8 = 292 dp of text,
+    // so 11 glyphs per line.
+    group('a long title at large text', () {
+      RenderParagraph titleParagraph(WidgetTester t, String title) =>
+          t.renderObject<RenderParagraph>(find.text(title));
+
+      // Mutation: the title stays one ellipsized line at any scale.
+      testWidgets('2.0 scale: wraps to a second line and grows the header', (
+        tester,
+      ) async {
+        const title = 'abcdefghijklmnopqrs'; // 19 glyphs -> 2 lines
+        await _host(tester, c, scaler: const TextScaler.linear(2));
+        c.show(const SileoOptions(title: title));
+        await _wait(tester, 1500);
+
+        expect(titleParagraph(tester, title).didExceedMaxLines, isFalse);
+        // Two 32 dp lines + 2 * 8 padding.
+        expect(_shape(tester).headerHeight, closeTo(80, 0.5));
+        expect(_pill(tester).height, closeTo(80, 0.5));
+        expect(_box(tester).height, closeTo(80 + 8, 0.5));
+        expect(tester.takeException(), isNull);
+        await end(tester);
+      });
+
+      // Mutation: unbounded lines push the pill past the screen.
+      testWidgets('2.0 scale: never more than two lines', (tester) async {
+        final title = 'x' * 60; // would be 6 lines
+        await _host(tester, c, scaler: const TextScaler.linear(2));
+        c.show(SileoOptions(title: title));
+        await _wait(tester, 1500);
+
+        expect(titleParagraph(tester, title).didExceedMaxLines, isTrue);
+        expect(_shape(tester).headerHeight, closeTo(80, 0.5));
+        expect(tester.takeException(), isNull);
+        await end(tester);
+      });
+
+      // Mutation: wrapping always on, so 1.0 changes from Sileo's one line.
+      testWidgets('1.0 scale: stays one ellipsized line (Sileo parity)', (
+        tester,
+      ) async {
+        final title = 'x' * 60;
+        await _host(tester, c);
+        c.show(SileoOptions(title: title));
+        await _wait(tester, 1500);
+
+        expect(titleParagraph(tester, title).didExceedMaxLines, isTrue);
+        expect(_shape(tester).headerHeight, closeTo(40, 0.01));
+        await end(tester);
+      });
+
+      // Mutation: the header is sized from the scale alone, not the row.
+      testWidgets('2.0 scale: a short title keeps the 48 dp header', (
+        tester,
+      ) async {
+        await _host(tester, c, scaler: const TextScaler.linear(2));
+        c.show(const SileoOptions(title: 'Saved'));
+        await _wait(tester, 1500);
+
+        expect(_shape(tester).headerHeight, closeTo(48, 0.01));
+        await end(tester);
+      });
+
+      // Mutation: the header height is measured once and never retargeted.
+      testWidgets('a same-id update from short to long grows the header', (
+        tester,
+      ) async {
+        await _host(tester, c, scaler: const TextScaler.linear(2));
+        c.show(const SileoOptions(title: 'Saved', id: 'a'));
+        await _wait(tester, 1500);
+        expect(_shape(tester).headerHeight, closeTo(48, 0.01));
+
+        c.show(const SileoOptions(title: 'abcdefghijklmnopqrs', id: 'a'));
+        await _wait(tester, 2500);
+
+        expect(_shape(tester).headerHeight, closeTo(80, 0.5));
+        expect(tester.takeException(), isNull);
+        await end(tester);
+      });
+
+      // Mutation: the open body and button start under a taller header.
+      testWidgets('2.0 scale, wrapped title: opens with its body and button', (
+        tester,
+      ) async {
+        await _host(tester, c, scaler: const TextScaler.linear(2));
+        c.show(
+          SileoOptions(
+            title: 'abcdefghijklmnopqrs',
+            description: const Text('Body'),
+            button: SileoButton(title: 'Undo', onPressed: () {}),
+          ),
+        );
+        await _wait(tester, 2500);
+
+        expect(_shape(tester).headerHeight, closeTo(80, 0.5));
+        expect(_body(tester), greaterThan(48));
+        expect(find.text('Undo'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await end(tester);
+      });
+
+      // Mutation: large size keeps one line.
+      testWidgets('large size at 2.0 wraps too', (tester) async {
+        // Large: 17 sp * 2.0 = 34 dp per glyph, ~9 glyphs a line in 376 dp.
+        const title = 'abcdefghijklmn';
+        await _host(tester, c, scaler: const TextScaler.linear(2));
+        c.show(const SileoOptions(title: title, size: SileoSize.large));
+        await _wait(tester, 1500);
+
+        expect(titleParagraph(tester, title).didExceedMaxLines, isFalse);
+        expect(tester.takeException(), isNull);
+        await end(tester);
+      });
+
+      testWidgets('320 dp and 2.0 with a wrapped title: no overflow', (
+        tester,
+      ) async {
+        await _host(
+          tester,
+          c,
+          size: const Size(320, 640),
+          scaler: const TextScaler.linear(2),
+        );
+        c.show(
+          SileoOptions(
+            title: 'abcdefghijklmnopqrs',
+            description: const Text('Body'),
+            button: SileoButton(title: 'Undo', onPressed: () {}),
+          ),
+        );
+        await _wait(tester, 2500);
+
+        expect(tester.takeException(), isNull);
+        await end(tester);
+      });
     });
 
     testWidgets('1.0 text scale keeps the 40 dp header', (tester) async {

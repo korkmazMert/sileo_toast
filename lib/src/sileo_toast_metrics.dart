@@ -11,6 +11,7 @@ class _Metrics {
     required this.icon,
     required this.titleSize,
     required this.titleLine,
+    required this.titleMaxLines,
     required this.bodyPadding,
     required this.roundness,
   });
@@ -34,6 +35,8 @@ class _Metrics {
               ? SileoConstants.largeTitleFontSize
               : SileoConstants.titleFontSize,
       titleLine: titleLine,
+      titleMaxLines:
+          scaler.scale(1) > 1 ? SileoConstants.scaledTitleMaxLines : 1,
       bodyPadding: large ? SileoConstants.largeBodyPadding : 0,
       roundness:
           large
@@ -48,6 +51,7 @@ class _Metrics {
   final double icon;
   final double titleSize;
   final double titleLine;
+  final int titleMaxLines;
   final double bodyPadding;
   final double roundness;
 }

@@ -184,6 +184,11 @@ abstract final class SileoConstants {
   /// Title line height.
   static const double titleLineHeight = 16;
 
+  /// Lines a title may use once the text is scaled up. At the default scale
+  /// it is one ellipsized line, as in Sileo; a scaled-up title wraps instead,
+  /// because a cut-off status word is unreadable.
+  static const int scaledTitleMaxLines = 2;
+
   /// Title weight.
   static const FontWeight titleWeight = FontWeight.w500;
 

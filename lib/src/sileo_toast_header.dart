@@ -133,8 +133,8 @@ class _HeaderLayerState extends State<_HeaderLayer>
           child: Text(
             view.title,
             style: title,
-            maxLines: 1,
-            softWrap: false,
+            maxLines: metrics.titleMaxLines,
+            softWrap: metrics.titleMaxLines > 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),

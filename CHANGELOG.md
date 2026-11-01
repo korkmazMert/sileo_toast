@@ -1,3 +1,7 @@
+## 0.1.1
+
+- A title now wraps to a second line (then ellipsizes) at a scaled-up text size instead of being cut off on one line. The header grows with the wrapped title. At the default text size nothing changes.
+
 ## 0.1.0
 
 First release of the Flutter port of Sileo.
