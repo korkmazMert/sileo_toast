@@ -1,6 +1,12 @@
 # sileo_toast
 
 <p align="center">
+  <a href="https://pub.dev/packages/sileo_toast"><img src="https://img.shields.io/pub/v/sileo_toast.svg" alt="pub package"></a>
+  <a href="https://github.com/korkmazMert/sileo_toast/actions/workflows/ci.yaml"><img src="https://github.com/korkmazMert/sileo_toast/actions/workflows/ci.yaml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+</p>
+
+<p align="center">
   <a href="doc/promo.mp4"><img src="doc/promo.gif" alt="sileo_toast demo: morphing toasts, large size with image and two buttons" width="720"></a>
 </p>
 
