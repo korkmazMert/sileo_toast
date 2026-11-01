@@ -3,6 +3,9 @@ description: Physics-based gooey toast for Flutter, a port of Sileo. Depends on 
 version: 0.1.0-dev.2
 repository: https://github.com/korkmazMert/sileo_toast
 issue_tracker: https://github.com/korkmazMert/sileo_toast/issues
+screenshots:
+  - description: Morphing toasts, large size with image and two buttons.
+    path: doc/promo.gif
 topics:
   - toast
   - animation

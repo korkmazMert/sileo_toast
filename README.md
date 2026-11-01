@@ -1,5 +1,9 @@
 # sileo_toast
 
+<p align="center">
+  <a href="doc/promo.mp4"><img src="doc/promo.gif" alt="sileo_toast demo: morphing toasts, large size with image and two buttons" width="720"></a>
+</p>
+
 Physics-based gooey toast for Flutter, a port of [Sileo](https://github.com/hiaaryan/sileo) by Aaryan Sharma.
 Depends on the Flutter SDK only (`widgets`, `physics`, `rendering`, `scheduler`), so it works with
 material_ui, cupertino_ui or plain widgets.
