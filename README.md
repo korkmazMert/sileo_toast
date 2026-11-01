@@ -10,8 +10,8 @@ material_ui, cupertino_ui or plain widgets.
 dependencies:
   sileo_toast:
     git:
-      url: https://github.com/korkmazmert/sileo_toast.git
-      ref: v0.1.0-dev.1
+      url: https://github.com/korkmazMert/sileo_toast.git
+      ref: v0.1.0-dev.2
 ```
 
 Once published on pub.dev: `sileo_toast: ^0.1.0`.
