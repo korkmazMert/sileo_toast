@@ -1,2 +1,9 @@
-# Large demo video: kept in git for the README link, not shipped in the package
+# Replaces .gitignore for `pub publish`, so repeat its rules here.
+build/
+pubspec.lock
+example/build/
+example/pubspec.lock
+
+# Kept in git for the README link, not shipped in the package.
 doc/promo.mp4
+CLAUDE.md
