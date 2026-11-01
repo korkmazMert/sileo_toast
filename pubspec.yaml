@@ -1,6 +1,14 @@
 name: sileo_toast
 description: Physics-based gooey toast for Flutter, a port of Sileo. Depends on the Flutter SDK only.
-version: 0.1.0
+version: 0.1.0-dev.1
+repository: https://github.com/korkmazmert/sileo_toast
+issue_tracker: https://github.com/korkmazmert/sileo_toast/issues
+topics:
+  - toast
+  - animation
+  - notification
+  - snackbar
+  - ui
 
 environment:
   sdk: ^3.13.0

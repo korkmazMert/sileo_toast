@@ -9,11 +9,12 @@ material_ui, cupertino_ui or plain widgets.
 ```yaml
 dependencies:
   sileo_toast:
-    path: ../packages/sileo_toast
-    # or
-    # git:
-    #   url: https://github.com/<owner>/sileo_toast.git
+    git:
+      url: https://github.com/korkmazmert/sileo_toast.git
+      ref: v0.1.0-dev.1
 ```
+
+Once published on pub.dev: `sileo_toast: ^0.1.0`.
 
 Requires Dart `^3.13.0` and Flutter `>=3.47.0`.
 
