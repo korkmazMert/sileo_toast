@@ -45,7 +45,7 @@ Pass your own `SileoController` to show toasts without a `BuildContext`; the toa
 
 | Sileo | sileo_toast |
 |---|---|
-| `<Toaster position offset options theme />` | `SileoToaster(child, controller, position, offset, options, theme, textStyle, persistWhenAccessibleNavigation)` |
+| `<Toaster position offset options theme />` | `SileoToaster(child, controller, position, offset, options, theme, textStyle, persistWhenAccessibleNavigation, maxPause)` |
 | `sileo.show / success / error / warning / info / action` | `SileoController.show / success / error / warning / info / action(SileoOptions)`, each returns the id |
 | `sileo.promise(promise, { loading, success, error, action })` | `controller.promise(future, SileoPromiseOptions(loading, success, error, action))`, returns the future |
 | `sileo.dismiss(id)` / `sileo.clear(position?)` | `controller.dismiss(id)` / `controller.clear([position])` |

@@ -37,6 +37,7 @@ Future<void> _host(
   bool accessible = false,
   bool noAnimations = false,
   bool persistA11y = true,
+  Duration? maxPause,
   SileoPosition position = SileoPosition.topRight,
 }) async {
   tester.view
@@ -57,6 +58,7 @@ Future<void> _host(
           controller: c,
           position: position,
           persistWhenAccessibleNavigation: persistA11y,
+          maxPause: maxPause ?? const Duration(seconds: 30),
           child: const SizedBox.expand(),
         ),
       ),
@@ -465,6 +467,83 @@ void main() {
       await _wait(tester, 200); // 6.1 s
       expect(c.items.single.exiting, isTrue);
       await _wait(tester, 700);
+      await end(tester);
+    });
+  });
+
+  group('a stuck engagement releases', () {
+    Future<TestGesture> mouseOn(WidgetTester tester) async {
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: const Offset(5, 500));
+      await mouse.moveTo(_pill(tester).center);
+      await _wait(tester, 1500);
+      return mouse;
+    }
+
+    testWidgets('a tap-held toast is dismissed after maxPause', (tester) async {
+      await _host(tester, c, maxPause: const Duration(seconds: 10));
+      c.show(_desc(autopilot: SileoAutopilot.off));
+      await _wait(tester, 1000);
+      await tester.tapAt(_pill(tester).center);
+      await _wait(tester, 7000);
+      expect(c.items.single.exiting, isFalse, reason: 'still paused');
+
+      // 10 s pause, then the full 6 s duration.
+      await _wait(tester, 9500);
+      expect(c.items.single.exiting, isTrue);
+      await _wait(tester, 700);
+      expect(c.items, isEmpty);
+      await end(tester);
+    });
+
+    testWidgets('a hover that never exits is dismissed after maxPause', (
+      tester,
+    ) async {
+      await _host(tester, c, maxPause: const Duration(seconds: 10));
+      c.show(_desc(autopilot: SileoAutopilot.off));
+      await _wait(tester, 1000);
+      final mouse = await mouseOn(tester);
+      addTearDown(mouse.removePointer);
+      await _wait(tester, 7000);
+      expect(c.items.single.exiting, isFalse, reason: 'still paused');
+
+      await _wait(tester, 8000); // mouseOn already waited 1.5 s
+      expect(c.items.single.exiting, isTrue);
+      await _wait(tester, 700);
+      expect(c.items, isEmpty);
+      await end(tester);
+    });
+
+    testWidgets('the pointer disappearing mid-hover resumes dismissal', (
+      tester,
+    ) async {
+      await _host(tester, c);
+      c.show(_desc(autopilot: SileoAutopilot.off));
+      await _wait(tester, 1000);
+      final mouse = await mouseOn(tester);
+      await mouse.removePointer();
+      await _wait(tester, 6500);
+
+      expect(c.items.single.exiting, isTrue);
+      await _wait(tester, 700);
+      await end(tester);
+    });
+
+    testWidgets('an engaged toast removed lets the others resume', (
+      tester,
+    ) async {
+      await _host(tester, c);
+      c.show(_desc(id: 'a', autopilot: SileoAutopilot.off));
+      await _wait(tester, 1000);
+      await tester.tapAt(_pill(tester).center);
+      await _wait(tester, 200);
+      c.show(const SileoOptions(title: 'B', id: 'b'));
+      await _wait(tester, 7000);
+      expect(c.items.where((i) => i.id == 'b' && !i.exiting), isNotEmpty);
+
+      c.dismiss('a');
+      await _wait(tester, 7500);
+      expect(c.items.where((i) => !i.exiting), isEmpty);
       await end(tester);
     });
   });
