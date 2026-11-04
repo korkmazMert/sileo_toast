@@ -19,6 +19,9 @@ abstract final class SileoConstants {
   /// Default auto-dismiss delay.
   static const Duration defaultToastDuration = Duration(milliseconds: 6000);
 
+  /// Default longest a hovered or touch-expanded toast holds back dismissal.
+  static const Duration defaultMaxPause = Duration(seconds: 15);
+
   /// Time an exiting toast stays before removal.
   static const Duration exitDuration = Duration(milliseconds: 600);
 

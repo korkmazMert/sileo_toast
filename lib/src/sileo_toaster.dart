@@ -62,7 +62,7 @@ class SileoToaster extends StatefulWidget {
     this.theme,
     this.textStyle,
     this.persistWhenAccessibleNavigation = true,
-    this.maxPause = const Duration(seconds: 15),
+    this.maxPause = SileoConstants.defaultMaxPause,
     super.key,
   });
 
