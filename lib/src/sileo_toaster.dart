@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 // Brightness is re-exported by widgets.dart only on newer Flutter; keep the
 // import so older supported versions compile.
@@ -61,6 +62,7 @@ class SileoToaster extends StatefulWidget {
     this.theme,
     this.textStyle,
     this.persistWhenAccessibleNavigation = true,
+    this.maxPause = const Duration(seconds: 15),
     super.key,
   });
 
@@ -89,6 +91,11 @@ class SileoToaster extends StatefulWidget {
   /// With accessible navigation on, toasts never auto-dismiss.
   final bool persistWhenAccessibleNavigation;
 
+  /// The longest a hovered or touch-expanded toast holds back dismissal.
+  /// Past it the pause is released and the toasts dismiss on their normal
+  /// timers, so a stuck hover or touch can never keep a toast on screen.
+  final Duration maxPause;
+
   @override
   State<SileoToaster> createState() => _SileoToasterState();
 }
@@ -99,6 +106,8 @@ class _SileoToasterState extends State<SileoToaster> {
   late _ScopeNotifier _scope;
   // Hovered or touch-expanded toast ids, oldest first.
   final Set<String> _engaged = {};
+  // Ends an engagement that never ended (a stuck hover or touch).
+  Timer? _maxPauseTimer;
 
   @override
   void initState() {
@@ -124,6 +133,7 @@ class _SileoToasterState extends State<SileoToaster> {
 
   @override
   void dispose() {
+    _maxPauseTimer?.cancel();
     if (_owned) _controller.dispose();
     _scope.dispose();
     super.dispose();
@@ -154,10 +164,20 @@ class _SileoToasterState extends State<SileoToaster> {
       }
     });
     if (_engaged.isEmpty) {
+      _maxPauseTimer?.cancel();
+      _maxPauseTimer = null;
       _controller.resume();
     } else {
       _controller.pause();
+      _maxPauseTimer ??= Timer(widget.maxPause, _releasePause);
     }
+  }
+
+  void _releasePause() {
+    _maxPauseTimer = null;
+    if (!mounted) return;
+    setState(_engaged.clear);
+    _controller.resume();
   }
 
   @override
