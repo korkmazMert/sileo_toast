@@ -54,6 +54,7 @@ Pass your own `SileoController` to show toasts without a `BuildContext`; the toa
 | `autopilot: false \| { expand, collapse }` | `SileoAutopilot.off` / `SileoAutopilot(expand:, collapse:)` |
 | `styles.{title, description, badge, button}` | `SileoStyles(title, description, badgeBackground, badgeForeground, buttonForeground, buttonBackground, buttonPressedBackground)` |
 | `button: { title, onClick }` | `SileoButton(title:, onPressed:)` |
+| (none) | `SileoOptions.semanticsIdentifier` / `SileoButton.semanticsIdentifier`: a semantics identifier for UI test tools; not read aloud |
 | positions `top-left` ... `bottom-right` | `SileoPosition.topLeft` ... `bottomRight` (physical, no RTL flip) |
 | `theme: light \| dark \| system` | `SileoThemeMode.light / dark / system` (`light` gives a dark toast, as in Sileo) |
 
