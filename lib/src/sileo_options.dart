@@ -35,13 +35,21 @@ class SileoAutopilot {
 @immutable
 class SileoButton {
   /// Creates a button.
-  const SileoButton({required this.title, required this.onPressed});
+  const SileoButton({
+    required this.title,
+    required this.onPressed,
+    this.semanticsIdentifier,
+  });
 
   /// Label.
   final String title;
 
   /// Tap callback.
   final VoidCallback onPressed;
+
+  /// Identifier of the button's semantics node, for UI test tooling.
+  /// Not read aloud; null adds nothing.
+  final String? semanticsIdentifier;
 }
 
 /// Toast scale.
@@ -122,6 +130,7 @@ class SileoOptions {
     this.size,
     this.trailing,
     this.secondaryButton,
+    this.semanticsIdentifier,
   });
 
   /// Wraps a plain string as a description.
@@ -175,6 +184,10 @@ class SileoOptions {
   /// Large-size secondary action (left of [button]); compact ignores it.
   final SileoButton? secondaryButton;
 
+  /// Identifier of the toast's semantics node, for UI test tooling.
+  /// Not read aloud; null adds nothing.
+  final String? semanticsIdentifier;
+
   /// Copy with fields replaced; null arguments keep the current value.
   SileoOptions copyWith({
     String? title,
@@ -193,6 +206,7 @@ class SileoOptions {
     SileoSize? size,
     Widget? trailing,
     SileoButton? secondaryButton,
+    String? semanticsIdentifier,
   }) => SileoOptions(
     title: title ?? this.title,
     description: description ?? this.description,
@@ -210,6 +224,7 @@ class SileoOptions {
     size: size ?? this.size,
     trailing: trailing ?? this.trailing,
     secondaryButton: secondaryButton ?? this.secondaryButton,
+    semanticsIdentifier: semanticsIdentifier ?? this.semanticsIdentifier,
   );
 
   /// Fields set here win; the rest come from [defaults]. Styles merge per
@@ -235,6 +250,7 @@ class SileoOptions {
       size: size ?? defaults.size,
       trailing: trailing ?? defaults.trailing,
       secondaryButton: secondaryButton ?? defaults.secondaryButton,
+      semanticsIdentifier: semanticsIdentifier ?? defaults.semanticsIdentifier,
     );
   }
 }

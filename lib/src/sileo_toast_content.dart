@@ -132,6 +132,7 @@ class _ActionButtonState extends State<_ActionButton> {
     return Semantics(
       container: true,
       button: true,
+      identifier: widget.button.semanticsIdentifier,
       label: widget.button.title,
       onTap: widget.button.onPressed,
       excludeSemantics: true,

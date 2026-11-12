@@ -775,6 +775,120 @@ void main() {
       await end(tester);
     });
 
+    // Shows a large toast with both buttons on a fresh controller and returns
+    // the semantics data of the toast and both buttons.
+    Future<List<SemanticsData>> shown(
+      WidgetTester tester, {
+      required bool withIds,
+    }) async {
+      final ctl = SileoController();
+      await _host(tester, ctl);
+      ctl.show(
+        SileoOptions(
+          title: 'Saved',
+          size: SileoSize.large,
+          description: const SizedBox(height: 10),
+          semanticsIdentifier: withIds ? 'toast_id' : null,
+          button: SileoButton(
+            title: 'Undo',
+            onPressed: () {},
+            semanticsIdentifier: withIds ? 'primary_id' : null,
+          ),
+          secondaryButton: SileoButton(
+            title: 'Share',
+            onPressed: () {},
+            semanticsIdentifier: withIds ? 'secondary_id' : null,
+          ),
+        ),
+      );
+      await _wait(tester, 1500);
+      final data =
+          [
+            node(tester, RegExp('^Saved')),
+            node(tester, 'Undo'),
+            node(tester, 'Share'),
+          ].map((n) => n.getSemanticsData()).toList();
+      await tester.pumpWidget(const SizedBox());
+      ctl.dispose();
+      return data;
+    }
+
+    // Mutation: drop `identifier:` from the toast's Semantics -> toast finder
+    // fails; from the primary or secondary button's -> that finder fails.
+    testWidgets('identifiers are found on the toast and each button', (
+      tester,
+    ) async {
+      handle = tester.ensureSemantics();
+      final ctl = SileoController();
+      await _host(tester, ctl);
+      ctl.show(
+        SileoOptions(
+          title: 'Saved',
+          size: SileoSize.large,
+          description: const SizedBox(height: 10),
+          semanticsIdentifier: 'toast_id',
+          button: SileoButton(
+            title: 'Undo',
+            onPressed: () {},
+            semanticsIdentifier: 'primary_id',
+          ),
+          secondaryButton: SileoButton(
+            title: 'Share',
+            onPressed: () {},
+            semanticsIdentifier: 'secondary_id',
+          ),
+        ),
+      );
+      await _wait(tester, 1500);
+      expect(find.bySemanticsIdentifier('toast_id'), findsOneWidget);
+      expect(find.bySemanticsIdentifier('primary_id'), findsOneWidget);
+      expect(find.bySemanticsIdentifier('secondary_id'), findsOneWidget);
+      final toast = tester.getSemantics(find.bySemanticsIdentifier('toast_id'));
+      expect(toast.label, startsWith('Saved'));
+      expect(
+        tester.getSemantics(find.bySemanticsIdentifier('primary_id')).label,
+        'Undo',
+      );
+      expect(
+        tester.getSemantics(find.bySemanticsIdentifier('secondary_id')).label,
+        'Share',
+      );
+      await tester.pumpWidget(const SizedBox());
+      ctl.dispose();
+      await end(tester);
+    });
+
+    // Mutation: identifier changes label, flags or actions (e.g. wraps in an
+    // extra labelled node) -> the with/without data differ.
+    testWidgets('labels, flags and actions equal with and without ids', (
+      tester,
+    ) async {
+      handle = tester.ensureSemantics();
+      final without = await shown(tester, withIds: false);
+      final withIds = await shown(tester, withIds: true);
+      for (var i = 0; i < without.length; i++) {
+        expect(withIds[i].label, without[i].label);
+        expect(withIds[i].flagsCollection, without[i].flagsCollection);
+        expect(withIds[i].actions, without[i].actions);
+      }
+      expect(without[0].identifier, isEmpty);
+      expect(without[1].identifier, isEmpty);
+      expect(without[2].identifier, isEmpty);
+      expect(withIds[0].identifier, 'toast_id');
+      expect(withIds[1].identifier, 'primary_id');
+      expect(withIds[2].identifier, 'secondary_id');
+      await end(tester);
+    });
+
+    // Mutation: mergeWith/copyWith drop the field -> toaster defaults and
+    // copies lose the identifier.
+    test('copyWith and mergeWith carry the identifier', () {
+      const o = SileoOptions(semanticsIdentifier: 'x');
+      expect(o.copyWith(title: 't').semanticsIdentifier, 'x');
+      expect(const SileoOptions().mergeWith(o).semanticsIdentifier, 'x');
+      expect(o.mergeWith(const SileoOptions()).semanticsIdentifier, 'x');
+    });
+
     // Mutation: onDismiss not wired -> action missing / does nothing.
     testWidgets('the dismiss action dismisses the toast', (tester) async {
       handle = tester.ensureSemantics();

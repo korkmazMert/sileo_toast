@@ -548,6 +548,7 @@ class _SileoToastViewState extends State<SileoToastView>
             child: Semantics(
               container: true,
               liveRegion: true,
+              identifier: widget.item.options.semanticsIdentifier,
               expanded: _hasContent ? _open : null,
               label: _semanticsLabel,
               onTap: _hasContent && !_isLoading && !exiting ? _toggle : null,
