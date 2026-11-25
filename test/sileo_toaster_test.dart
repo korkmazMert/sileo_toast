@@ -97,6 +97,114 @@ void main() {
     c.dispose();
   }
 
+  group('a changing safe area', () {
+    // Above the Navigator the app does not rebuild with the media, so neither
+    // does the widget handed to MediaQuery: only its dependents rebuild.
+    Future<ValueNotifier<EdgeInsets>> pumpOver(
+      WidgetTester tester,
+      SileoPosition position,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(400, 800)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final padding = ValueNotifier(const EdgeInsets.only(top: 44, bottom: 34));
+      addTearDown(padding.dispose);
+      await tester.pumpWidget(
+        ValueListenableBuilder<EdgeInsets>(
+          valueListenable: padding,
+          builder:
+              (_, value, child) => MediaQuery(
+                data: MediaQueryData(
+                  size: const Size(400, 800),
+                  padding: value,
+                ),
+                child: child!,
+              ),
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: SileoToaster(
+              controller: c,
+              position: position,
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+      return padding;
+    }
+
+    /// The keyboard opening over the home indicator and closing again, and
+    /// what rebuilt from the toaster down meanwhile.
+    Future<List<Type>> keyboard(
+      WidgetTester tester,
+      ValueNotifier<EdgeInsets> padding,
+    ) async {
+      final rebuilt = <Type>[];
+      debugOnRebuildDirtyWidget = (element, _) {
+        var inside = element.widget is SileoToaster;
+        element.visitAncestorElements((a) {
+          if (a.widget is SileoToaster) inside = true;
+          return !inside;
+        });
+        if (inside) rebuilt.add(element.widget.runtimeType);
+      };
+      try {
+        for (final bottom in const [20.0, 5.0, 0.0, 20.0, 34.0]) {
+          padding.value = EdgeInsets.only(top: 44, bottom: bottom);
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+      } finally {
+        debugOnRebuildDirtyWidget = null;
+      }
+      return rebuilt;
+    }
+
+    // Mutation: the safe area read in SileoToaster's own build.
+    testWidgets('rebuilds nothing while no toast is shown', (tester) async {
+      final padding = await pumpOver(tester, SileoPosition.topCenter);
+      expect(await keyboard(tester, padding), isEmpty);
+      await end(tester);
+    });
+
+    // Mutation: the safe area read in the builder that outlives the toasts.
+    testWidgets('rebuilds nothing once the toasts are gone', (tester) async {
+      final padding = await pumpOver(tester, SileoPosition.topCenter);
+      final id = c.show(const SileoOptions(title: 'Hi'));
+      await _wait(tester, 1000);
+      expect(_painters, findsOneWidget);
+      c.dismiss(id);
+      await _wait(tester, 2000);
+      expect(_painters, findsNothing);
+
+      expect(await keyboard(tester, padding), isEmpty);
+      await end(tester);
+    });
+
+    testWidgets('moves a shown toast, not the toaster', (tester) async {
+      final padding = await pumpOver(tester, SileoPosition.bottomCenter);
+      c.show(const SileoOptions(title: 'Hi'));
+      await _wait(tester, 1000);
+      // 800 - (34 + 12).
+      expect(_pill(tester, top: false).bottom, closeTo(754, 0.01));
+
+      final rebuilt = <Type>[];
+      debugOnRebuildDirtyWidget = (e, _) => rebuilt.add(e.widget.runtimeType);
+      try {
+        padding.value = const EdgeInsets.only(left: 60, top: 44, right: 60);
+        await tester.pump();
+      } finally {
+        debugOnRebuildDirtyWidget = null;
+      }
+      // 800 - 12, and min(350, 400 - 2 * (60 + 12)) wide.
+      expect(_pill(tester, top: false).bottom, closeTo(788, 0.01));
+      expect(tester.getSize(_painters).width, 256);
+      expect(rebuilt, isNotEmpty);
+      expect(rebuilt, isNot(contains(SileoToaster)));
+      await end(tester);
+    });
+  });
+
   group('viewport positions', () {
     const padding = EdgeInsets.fromLTRB(10, 44, 20, 34);
     const offset = EdgeInsets.fromLTRB(5, 6, 7, 8);
