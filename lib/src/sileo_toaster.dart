@@ -189,16 +189,6 @@ class _SileoToasterState extends State<SileoToaster> {
       widget.theme,
       MediaQuery.maybePlatformBrightnessOf(context) ?? Brightness.light,
     );
-    final safe = MediaQuery.maybePaddingOf(context) ?? EdgeInsets.zero;
-    final offset = widget.offset ?? EdgeInsets.zero;
-    const pad = SileoConstants.viewportPadding;
-    const ext = SileoConstants.tapExtension;
-    final inset = EdgeInsets.fromLTRB(
-      safe.left + offset.left + pad,
-      safe.top + offset.top + pad - ext,
-      safe.right + offset.right + pad,
-      safe.bottom + offset.bottom + pad - ext,
-    );
 
     return _SileoScope(
       notifier: _scope,
@@ -217,51 +207,15 @@ class _SileoToasterState extends State<SileoToaster> {
                     _engaged.isNotEmpty
                         ? _engaged.last
                         : (live.isEmpty ? null : live.last.id);
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final width =
-                        math
-                            .max(
-                              0,
-                              math.min(
-                                SileoConstants.width,
-                                constraints.maxWidth - inset.horizontal,
-                              ),
-                            )
-                            .toDouble();
-                    final largeWidth =
-                        math
-                            .max(
-                              0,
-                              math.min(
-                                SileoConstants.largeMaxWidth,
-                                constraints.maxWidth - inset.horizontal,
-                              ),
-                            )
-                            .toDouble();
-                    return Stack(
-                      children: [
-                        for (final p in SileoPosition.values)
-                          if (items.any((i) => i.position == p))
-                            _Viewport(
-                              position: p,
-                              inset: inset,
-                              items: [
-                                for (final i in items)
-                                  if (i.position == p) i,
-                              ],
-                              width: width,
-                              largeWidth: largeWidth,
-                              fill: fill,
-                              textStyle: widget.textStyle,
-                              activeId: active,
-                              persist: widget.persistWhenAccessibleNavigation,
-                              onDismiss: _controller.dismiss,
-                              onEngaged: _onEngaged,
-                            ),
-                      ],
-                    );
-                  },
+                return _Viewports(
+                  items: items,
+                  offset: widget.offset ?? EdgeInsets.zero,
+                  fill: fill,
+                  textStyle: widget.textStyle,
+                  activeId: active,
+                  persist: widget.persistWhenAccessibleNavigation,
+                  onDismiss: _controller.dismiss,
+                  onEngaged: _onEngaged,
                 );
               },
             ),

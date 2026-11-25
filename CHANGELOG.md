@@ -1,3 +1,7 @@
+## 0.1.4
+
+- `SileoToaster` no longer rebuilds when the safe area changes (the keyboard covering the home indicator): only the shown toasts follow it, and with none shown nothing rebuilds.
+
 ## 0.1.3
 
 - New `semanticsIdentifier` on `SileoOptions` and `SileoButton`. It sets the `identifier` of the toast's and the button's existing semantics node, so UI test tools (`find.bySemanticsIdentifier`, UI automation) can target them. Null (the default) leaves the semantics tree unchanged.
